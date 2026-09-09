@@ -72,3 +72,28 @@ create policy "Allow anonymous update on services"
 create policy "Allow anonymous delete on services"
   on public.services for delete
   using (true);
+
+-- 3. SITE CONTENT TABLE (Admin panel -> live website sync)
+-- Stores the editable site content (services, posters, payment settings,
+-- salon info, policies) so admin edits show for every visitor.
+create table if not exists public.site_content (
+  key text primary key,
+  value jsonb not null,
+  updated_at timestamp with time zone default now()
+);
+
+alter table public.site_content enable row level security;
+
+-- Every visitor can read the latest content
+create policy "Allow anonymous select on site_content"
+  on public.site_content for select
+  to anon, authenticated
+  using (true);
+
+-- Writes are NOT allowed with the public anon key.
+-- The admin panel saves through /api/content, which validates the admin
+-- passkey server-side and writes with the SUPABASE_SERVICE_ROLE_KEY.
+
+-- New tables are not always auto-exposed to the Data API, so grant explicitly
+grant select on public.site_content to anon, authenticated;
+grant select, insert, update, delete on public.site_content to service_role;

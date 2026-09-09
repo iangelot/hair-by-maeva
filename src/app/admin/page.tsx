@@ -68,11 +68,18 @@ export default function AdminPage() {
         const parsed = JSON.parse(stored);
         if (parsed.expiresAt && Date.now() < parsed.expiresAt) {
           setIsAuthenticated(true);
+          // Restore admin key for cloud sync
+          if (parsed.key) {
+            try {
+              sessionStorage.setItem("hbm_admin_key", parsed.key);
+            } catch {}
+          }
           // Refresh sliding session window
           localStorage.setItem(
             ADMIN_SESSION_KEY,
             JSON.stringify({
               authenticated: true,
+              key: parsed.key,
               expiresAt: Date.now() + SESSION_DURATION_MS,
             })
           );
@@ -119,11 +126,15 @@ export default function AdminPage() {
     if (cleanKey === "admin123" || cleanKey.toLowerCase() === "admin") {
       setIsAuthenticated(true);
       setAuthError(false);
+      // Normalize to the canonical passkey expected by /api/content
+      const syncKey = cleanKey.toLowerCase() === "admin" ? "admin123" : cleanKey;
       try {
+        sessionStorage.setItem("hbm_admin_key", syncKey);
         localStorage.setItem(
           ADMIN_SESSION_KEY,
           JSON.stringify({
             authenticated: true,
+            key: syncKey,
             expiresAt: Date.now() + SESSION_DURATION_MS,
           })
         );
@@ -136,6 +147,7 @@ export default function AdminPage() {
   const handleLogout = () => {
     try {
       localStorage.removeItem(ADMIN_SESSION_KEY);
+      sessionStorage.removeItem("hbm_admin_key");
     } catch {}
     setIsAuthenticated(false);
     setPasskey("");

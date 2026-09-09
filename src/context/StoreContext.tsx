@@ -104,6 +104,29 @@ const defaultPaymentSettings: PaymentSettings = {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
+const cloudSyncTimers: Record<string, ReturnType<typeof setTimeout>> = {};
+
+function getAdminKey(): string | null {
+  try {
+    return sessionStorage.getItem("hbm_admin_key");
+  } catch {
+    return null;
+  }
+}
+
+function queueCloudSync(key: string, value: unknown) {
+  const adminKey = getAdminKey();
+  if (!adminKey) return;
+  if (cloudSyncTimers[key]) clearTimeout(cloudSyncTimers[key]);
+  cloudSyncTimers[key] = setTimeout(() => {
+    fetch("/api/content", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
+      body: JSON.stringify({ key, value }),
+    }).catch((err) => console.warn("Cloud sync dispatch:", err));
+  }, 600);
+}
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [services, setServices] = useState<ServiceItem[]>(initialServices);
   const [bookings, setBookings] = useState<BookingRecord[]>([]);
@@ -222,6 +245,31 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setPolicies(initialSiteConfig.policies);
         localStorage.setItem("beas_admin_policies_v1", JSON.stringify(initialSiteConfig.policies));
       }
+
+      // Load live site content from Supabase (source of truth for all visitors)
+      if (isSupabaseConfigured && supabase) {
+        supabase
+          .from("site_content")
+          .select("key, value")
+          .then(({ data, error }) => {
+            if (error || !data || data.length === 0) return;
+            for (const row of data as { key: string; value: any }[]) {
+              try {
+                if (row.key === "services" && Array.isArray(row.value) && row.value.length > 0) {
+                  setServices(row.value);
+                } else if (row.key === "hero_images" && Array.isArray(row.value) && row.value.length > 0) {
+                  setHeroImages(row.value);
+                } else if (row.key === "payment_settings" && row.value && typeof row.value === "object") {
+                  setPaymentSettings((prev) => ({ ...prev, ...row.value }));
+                } else if (row.key === "salon_info" && row.value && typeof row.value === "object") {
+                  setSalonInfo((prev) => ({ ...prev, ...row.value }));
+                } else if (row.key === "policies" && Array.isArray(row.value) && row.value.length > 0) {
+                  setPolicies(row.value);
+                }
+              } catch {}
+            }
+          });
+      }
     } catch {
       // Storage unavailable or parsing error
     }
@@ -267,17 +315,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Actions
   const addService = (newService: Omit<ServiceItem, "id">) => {
     const id = `service-${Date.now()}`;
-    setServices((prev) => [...prev, { ...newService, id }]);
+    const next = [...services, { ...newService, id }];
+    setServices(next);
+    queueCloudSync("services", next);
   };
 
   const updateService = (id: string, updated: Partial<ServiceItem>) => {
-    setServices((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, ...updated } : s))
-    );
+    const next = services.map((s) => (s.id === id ? { ...s, ...updated } : s));
+    setServices(next);
+    queueCloudSync("services", next);
   };
 
   const deleteService = (id: string) => {
-    setServices((prev) => prev.filter((s) => s.id !== id));
+    const next = services.filter((s) => s.id !== id);
+    setServices(next);
+    queueCloudSync("services", next);
   };
 
   const createBooking = (bookingData: Omit<BookingRecord, "id" | "createdAt" | "status">) => {
@@ -353,23 +405,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addHeroImage = (image: SiteConfig["heroImages"][0]) => {
-    setHeroImages((prev) => [...prev, image]);
+    const next = [...heroImages, image];
+    setHeroImages(next);
+    queueCloudSync("hero_images", next);
   };
 
   const deleteHeroImage = (id: string) => {
-    setHeroImages((prev) => prev.filter((img) => img.id !== id));
+    const next = heroImages.filter((img) => img.id !== id);
+    setHeroImages(next);
+    queueCloudSync("hero_images", next);
   };
 
   const updatePaymentSettings = (settings: Partial<PaymentSettings>) => {
-    setPaymentSettings((prev) => ({ ...prev, ...settings }));
+    const next = { ...paymentSettings, ...settings };
+    setPaymentSettings(next);
+    queueCloudSync("payment_settings", next);
   };
 
   const updateSalonInfo = (info: Partial<StoreContextType["salonInfo"]>) => {
-    setSalonInfo((prev) => ({ ...prev, ...info }));
+    const next = { ...salonInfo, ...info };
+    setSalonInfo(next);
+    queueCloudSync("salon_info", next);
   };
 
   const updatePolicies = (newPolicies: SiteConfig["policies"]) => {
     setPolicies(newPolicies);
+    queueCloudSync("policies", newPolicies);
   };
 
   const resetToDefaults = () => {
@@ -377,15 +438,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setServices(initialServices);
       setHeroImages(initialSiteConfig.heroImages);
       setPaymentSettings(defaultPaymentSettings);
-      setSalonInfo({
+      const freshInfo = {
         name: initialSiteConfig.name,
         phone: initialSiteConfig.phone,
         email: initialSiteConfig.email,
         location: initialSiteConfig.location,
         notice: initialSiteConfig.notice,
-      });
+      };
+      setSalonInfo(freshInfo);
       setPolicies(initialSiteConfig.policies);
       localStorage.clear();
+      queueCloudSync("services", initialServices);
+      queueCloudSync("hero_images", initialSiteConfig.heroImages);
+      queueCloudSync("payment_settings", defaultPaymentSettings);
+      queueCloudSync("salon_info", freshInfo);
+      queueCloudSync("policies", initialSiteConfig.policies);
     }
   };
 
