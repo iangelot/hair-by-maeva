@@ -144,7 +144,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Load state from localStorage on mount
   useEffect(() => {
     try {
-      const savedServices = localStorage.getItem("beas_admin_services_v7");
+      const savedServices = localStorage.getItem("beas_admin_services_v8");
       if (savedServices) {
         const parsed: ServiceItem[] = JSON.parse(savedServices);
         const merged = parsed.map((s) => {
@@ -163,10 +163,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           return updated;
         });
         setServices(merged);
-        localStorage.setItem("beas_admin_services_v7", JSON.stringify(merged));
+        localStorage.setItem("beas_admin_services_v8", JSON.stringify(merged));
       } else {
         setServices(initialServices);
-        localStorage.setItem("beas_admin_services_v7", JSON.stringify(initialServices));
+        localStorage.setItem("beas_admin_services_v8", JSON.stringify(initialServices));
       }
 
       const savedBookings = localStorage.getItem("beas_admin_bookings");
@@ -207,23 +207,23 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           });
       }
 
-      const savedImages = localStorage.getItem("beas_admin_hero_images_v5");
+      const savedImages = localStorage.getItem("beas_admin_hero_images_v6");
       if (savedImages) {
         setHeroImages(JSON.parse(savedImages));
       } else {
         setHeroImages(initialSiteConfig.heroImages);
-        localStorage.setItem("beas_admin_hero_images_v5", JSON.stringify(initialSiteConfig.heroImages));
+        localStorage.setItem("beas_admin_hero_images_v6", JSON.stringify(initialSiteConfig.heroImages));
       }
 
-      const savedPayment = localStorage.getItem("beas_admin_payment_settings_v7");
+      const savedPayment = localStorage.getItem("beas_admin_payment_settings_v8");
       if (savedPayment) {
         setPaymentSettings(JSON.parse(savedPayment));
       } else {
         setPaymentSettings(defaultPaymentSettings);
-        localStorage.setItem("beas_admin_payment_settings_v7", JSON.stringify(defaultPaymentSettings));
+        localStorage.setItem("beas_admin_payment_settings_v8", JSON.stringify(defaultPaymentSettings));
       }
 
-      const savedInfo = localStorage.getItem("beas_admin_salon_info_v7");
+      const savedInfo = localStorage.getItem("beas_admin_salon_info_v8");
       if (savedInfo) {
         setSalonInfo(JSON.parse(savedInfo));
       } else {
@@ -235,15 +235,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           notice: initialSiteConfig.notice,
         };
         setSalonInfo(freshInfo);
-        localStorage.setItem("beas_admin_salon_info_v7", JSON.stringify(freshInfo));
+        localStorage.setItem("beas_admin_salon_info_v8", JSON.stringify(freshInfo));
       }
 
-      const savedPolicies = localStorage.getItem("beas_admin_policies_v1");
+      const savedPolicies = localStorage.getItem("beas_admin_policies_v2");
       if (savedPolicies) {
         setPolicies(JSON.parse(savedPolicies));
       } else {
         setPolicies(initialSiteConfig.policies);
-        localStorage.setItem("beas_admin_policies_v1", JSON.stringify(initialSiteConfig.policies));
+        localStorage.setItem("beas_admin_policies_v2", JSON.stringify(initialSiteConfig.policies));
       }
 
       // Load live site content from Supabase (source of truth for all visitors)
@@ -278,7 +278,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Save changes to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem("beas_admin_services_v7", JSON.stringify(services));
+      localStorage.setItem("beas_admin_services_v8", JSON.stringify(services));
     } catch {}
   }, [services]);
 
@@ -290,25 +290,25 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem("beas_admin_hero_images_v5", JSON.stringify(heroImages));
+      localStorage.setItem("beas_admin_hero_images_v6", JSON.stringify(heroImages));
     } catch {}
   }, [heroImages]);
 
   useEffect(() => {
     try {
-      localStorage.setItem("beas_admin_payment_settings_v7", JSON.stringify(paymentSettings));
+      localStorage.setItem("beas_admin_payment_settings_v8", JSON.stringify(paymentSettings));
     } catch {}
   }, [paymentSettings]);
 
   useEffect(() => {
     try {
-      localStorage.setItem("beas_admin_salon_info_v7", JSON.stringify(salonInfo));
+      localStorage.setItem("beas_admin_salon_info_v8", JSON.stringify(salonInfo));
     } catch {}
   }, [salonInfo]);
 
   useEffect(() => {
     try {
-      localStorage.setItem("beas_admin_policies_v1", JSON.stringify(policies));
+      localStorage.setItem("beas_admin_policies_v2", JSON.stringify(policies));
     } catch {}
   }, [policies]);
 
