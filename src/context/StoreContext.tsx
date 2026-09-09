@@ -82,7 +82,7 @@ interface StoreContextType {
 
 const defaultPaymentSettings: PaymentSettings = {
   recipientName: "Awa Diongue",
-  phone: "(773) 269-7505",
+  phone: "(682) 454-1530",
   email: "Maevausa@outlook.com",
   zelleRecipientName: "Awa Diongue",
   zelleEmail: "Maevausa@outlook.com",
@@ -90,12 +90,12 @@ const defaultPaymentSettings: PaymentSettings = {
   zelleIdentifier: "(773) 269-7505 or Maevausa@outlook.com (Awa Diongue)",
   paypalEmail: "Maevausa@outlook.com",
   paypalPhone: "(773) 269-7505",
-  applePayNumber: "(773) 269-7505",
-  cashAppCashtag: "(773) 269-7505",
-  venmoHandle: "Awa Diongue / (773) 269-7505",
+  applePayNumber: "(682) 454-1530",
+  cashAppCashtag: "$BANDSOFTHAIR",
+  venmoHandle: "Awa Diongue",
   squareBookingLink: "",
   stripePaymentLink: "",
-  instructions: "Deposits accepted via Zelle, PayPal, Apple Pay, Cash App, or Venmo to Awa Diongue using phone (773) 269-7505 or email Maevausa@outlook.com. Please include your Booking Reference in the memo.",
+  instructions: "Deposits are $20 and are strictly non-refundable. Send $20 deposit via Cash App ($BANDSOFTHAIR), Apple Pay (682-454-1530), Zelle, or PayPal to Awa Diongue. Please text (682) 454-1530 with a screenshot of your payment after sending. Remaining balance is CASH ONLY at appointment!",
 };
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -116,12 +116,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Load state from localStorage on mount
   useEffect(() => {
     try {
-      const savedServices = localStorage.getItem("beas_admin_services_v6") || localStorage.getItem("beas_admin_services_v5");
+      const savedServices = localStorage.getItem("beas_admin_services_v7");
       if (savedServices) {
         const parsed: ServiceItem[] = JSON.parse(savedServices);
         const merged = parsed.map((s) => {
           const initial = initialServices.find((init) => init.id === s.id || init.name.toLowerCase() === s.name.toLowerCase());
           let updated = { ...s };
+          // Ensure default deposit is $20
+          if (updated.deposit === 50 || !updated.deposit) {
+            updated.deposit = 20;
+          }
           if ((!updated.image || updated.image.trim() === "") && initial?.image) {
             updated.image = initial.image;
           }
@@ -131,10 +135,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           return updated;
         });
         setServices(merged);
-        localStorage.setItem("beas_admin_services_v6", JSON.stringify(merged));
+        localStorage.setItem("beas_admin_services_v7", JSON.stringify(merged));
       } else {
         setServices(initialServices);
-        localStorage.setItem("beas_admin_services_v6", JSON.stringify(initialServices));
+        localStorage.setItem("beas_admin_services_v7", JSON.stringify(initialServices));
       }
 
       const savedBookings = localStorage.getItem("beas_admin_bookings");
@@ -157,7 +161,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
                 serviceName: d.service_name,
                 selectedLength: d.selected_length,
                 totalPrice: Number(d.total_amount ?? d.total_price ?? 0),
-                depositAmount: Number(d.deposit_amount ?? 0),
+                depositAmount: Number(d.deposit_amount ?? 20),
                 appointmentDate: d.appointment_date,
                 appointmentTime: d.appointment_time,
                 notes: d.notes,
@@ -175,23 +179,23 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           });
       }
 
-      const savedImages = localStorage.getItem("beas_admin_hero_images_v4");
+      const savedImages = localStorage.getItem("beas_admin_hero_images_v5");
       if (savedImages) {
         setHeroImages(JSON.parse(savedImages));
       } else {
         setHeroImages(initialSiteConfig.heroImages);
-        localStorage.setItem("beas_admin_hero_images_v4", JSON.stringify(initialSiteConfig.heroImages));
+        localStorage.setItem("beas_admin_hero_images_v5", JSON.stringify(initialSiteConfig.heroImages));
       }
 
-      const savedPayment = localStorage.getItem("beas_admin_payment_settings_v3");
+      const savedPayment = localStorage.getItem("beas_admin_payment_settings_v4");
       if (savedPayment) {
         setPaymentSettings(JSON.parse(savedPayment));
       } else {
         setPaymentSettings(defaultPaymentSettings);
-        localStorage.setItem("beas_admin_payment_settings_v3", JSON.stringify(defaultPaymentSettings));
+        localStorage.setItem("beas_admin_payment_settings_v4", JSON.stringify(defaultPaymentSettings));
       }
 
-      const savedInfo = localStorage.getItem("beas_admin_salon_info_v3");
+      const savedInfo = localStorage.getItem("beas_admin_salon_info_v4");
       if (savedInfo) {
         setSalonInfo(JSON.parse(savedInfo));
       } else {
@@ -203,7 +207,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           notice: initialSiteConfig.notice,
         };
         setSalonInfo(freshInfo);
-        localStorage.setItem("beas_admin_salon_info_v3", JSON.stringify(freshInfo));
+        localStorage.setItem("beas_admin_salon_info_v4", JSON.stringify(freshInfo));
       }
     } catch {
       // Storage unavailable or parsing error
@@ -213,7 +217,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Save changes to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem("beas_admin_services_v6", JSON.stringify(services));
+      localStorage.setItem("beas_admin_services_v7", JSON.stringify(services));
     } catch {}
   }, [services]);
 
@@ -225,19 +229,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem("beas_admin_hero_images_v4", JSON.stringify(heroImages));
+      localStorage.setItem("beas_admin_hero_images_v5", JSON.stringify(heroImages));
     } catch {}
   }, [heroImages]);
 
   useEffect(() => {
     try {
-      localStorage.setItem("beas_admin_payment_settings_v3", JSON.stringify(paymentSettings));
+      localStorage.setItem("beas_admin_payment_settings_v4", JSON.stringify(paymentSettings));
     } catch {}
   }, [paymentSettings]);
 
   useEffect(() => {
     try {
-      localStorage.setItem("beas_admin_salon_info_v3", JSON.stringify(salonInfo));
+      localStorage.setItem("beas_admin_salon_info_v4", JSON.stringify(salonInfo));
     } catch {}
   }, [salonInfo]);
 

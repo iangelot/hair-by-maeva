@@ -14,7 +14,7 @@ export const servicesData: ServiceItem[] = [
     id: "xsmall-knotless-box-twist",
     name: "Xsmall knotless & box braids & twist",
     price: 220,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/xsmall-braids.jpg",
     notice: "Boho hair is not included",
     lengths: [
@@ -28,7 +28,7 @@ export const servicesData: ServiceItem[] = [
     id: "small-knotless-box-twists",
     name: "Small Knotless & box braids & twists",
     price: 200,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/small-braids.jpg",
     notice: "Boho hair is not included",
     lengths: [
@@ -42,7 +42,7 @@ export const servicesData: ServiceItem[] = [
     id: "medium-knotless-box-twist",
     name: "Medium knotless & box braids & twist",
     price: 180,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/medium-braids.jpg",
     notice: "Boho hair is not included",
     lengths: [
@@ -56,7 +56,7 @@ export const servicesData: ServiceItem[] = [
     id: "jumbo-knotless-box-twist",
     name: "Jumbo knotless & box braids & twist",
     price: 120,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/jumbo-braids.jpg",
     notice: "Boho hair is not included",
     lengths: [
@@ -72,7 +72,7 @@ export const servicesData: ServiceItem[] = [
     id: "miracles-knotless",
     name: "Miracles Knotless braids",
     price: 180,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/miracles-knotless.jpg",
     lengths: [
       { name: "Medium", price: 180 },
@@ -84,7 +84,7 @@ export const servicesData: ServiceItem[] = [
     id: "bora-bora-braids",
     name: "Bora bora braids",
     price: 250,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/bora-bora.jpg",
     lengths: [
       { name: "Medium", price: 250 },
@@ -96,7 +96,7 @@ export const servicesData: ServiceItem[] = [
     id: "boho-knotless",
     name: "Boho knotless",
     price: 230,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/boho-knotless.jpg",
     notice: "Boho hair is not included",
     lengths: [
@@ -110,7 +110,7 @@ export const servicesData: ServiceItem[] = [
     id: "box-braids",
     name: "Box braids",
     price: 200,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/box-braids.jpg",
     notice: "Boho hair is not included",
     lengths: [
@@ -124,7 +124,7 @@ export const servicesData: ServiceItem[] = [
     id: "senegalese-twist",
     name: "Senegalese twist",
     price: 200,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/senegalese-twist.jpg",
     notice: "Boho hair is not included",
     lengths: [
@@ -140,7 +140,7 @@ export const servicesData: ServiceItem[] = [
     id: "french-curly",
     name: "French curly",
     price: 200,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/french-curly.jpg",
     notice: "Hair is not included",
     lengths: [
@@ -153,14 +153,14 @@ export const servicesData: ServiceItem[] = [
     id: "half-side-stitch",
     name: "Half side stitch braid",
     price: 220,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/half-side-stitch.jpg",
   },
   {
     id: "fulani-braids",
     name: "Fulani braids",
     price: 200,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/fulani-braids.jpg",
     notice: "Boho hair is not included",
     lengths: [
@@ -172,7 +172,7 @@ export const servicesData: ServiceItem[] = [
     id: "ponytail",
     name: "Ponytail",
     price: 180,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/ponytail.jpg",
     notice: "Boho hair is not included",
     lengths: [
@@ -184,7 +184,7 @@ export const servicesData: ServiceItem[] = [
     id: "micro-twist",
     name: "Micro twist",
     price: 300,
-    deposit: 50,
+    deposit: 20,
     image: "/images/styles/micro-twist.jpg",
     notice: "Hair is not included",
   },

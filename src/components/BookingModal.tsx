@@ -50,7 +50,7 @@ export function BookingModal({
       id: "unknown",
       name: "Braiding Service",
       price: 200,
-      deposit: 50,
+      deposit: 20,
       duration: "4h",
       lengths: [],
     };
@@ -508,19 +508,19 @@ export function BookingModal({
                   {selectedPaymentMethod === "Apple Pay" && (
                     <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
                       <span className="text-[#6B5B56]">Apple Pay Phone:</span>
-                      <strong className="text-[#4E141B] font-mono font-semibold">(773) 269-7505</strong>
+                      <strong className="text-[#4E141B] font-mono font-semibold">(682) 454-1530</strong>
                     </div>
                   )}
 
                   {selectedPaymentMethod === "Cash App / Venmo" && (
                     <>
                       <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                        <span className="text-[#6B5B56]">Phone Search:</span>
-                        <strong className="text-[#4E141B] font-mono font-semibold">(773) 269-7505</strong>
+                        <span className="text-[#6B5B56]">Cash App Cashtag:</span>
+                        <strong className="text-[#4E141B] font-mono font-semibold">$BANDSOFTHAIR</strong>
                       </div>
                       <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                        <span className="text-[#6B5B56]">Email Search:</span>
-                        <strong className="text-[#4E141B] font-semibold">Maevausa@outlook.com</strong>
+                        <span className="text-[#6B5B56]">Venmo / Contact:</span>
+                        <strong className="text-[#4E141B] font-mono font-semibold">(682) 454-1530</strong>
                       </div>
                     </>
                   )}
@@ -534,8 +534,8 @@ export function BookingModal({
                 </div>
 
                 <div className="text-[11px] text-[#6B5B56] space-y-1 pt-1">
-                  <p>• Studio: <strong>1941 West Huron Street, Chicago, Illinois 60622</strong></p>
-                  <p>• Deposit is credited toward your total remaining balance due at appointment.</p>
+                  <p>• Studio: <strong>Home-based in Chicago, Illinois</strong></p>
+                  <p>• Deposit is credited toward your total remaining balance (Cash Only at appointment).</p>
                 </div>
               </div>
 
@@ -573,10 +573,10 @@ export function BookingModal({
                         onChange={(e) => setSelectedPaymentMethod(e.target.value as any)}
                         className="w-full p-2.5 border border-[#E8DFD5] text-xs focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
                       >
+                        <option value="Cash App / Venmo">Cash App ($BANDSOFTHAIR)</option>
+                        <option value="Apple Pay">Apple Pay (682-454-1530)</option>
                         <option value="Zelle">Zelle (773-269-7505 / Maevausa@outlook.com)</option>
-                        <option value="PayPal">PayPal (Maevausa@outlook.com / 773-269-7505)</option>
-                        <option value="Apple Pay">Apple Pay (773-269-7505)</option>
-                        <option value="Cash App / Venmo">Cash App / Venmo (773-269-7505)</option>
+                        <option value="PayPal">PayPal (Maevausa@outlook.com)</option>
                       </select>
                     </div>
 
