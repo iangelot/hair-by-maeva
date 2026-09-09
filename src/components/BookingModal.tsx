@@ -39,6 +39,9 @@ export function BookingModal({
   const [zelleMemoInput, setZelleMemoInput] = useState("");
   const [verificationSubmitted, setVerificationSubmitted] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    "Zelle" | "PayPal" | "Apple Pay" | "Cash App / Venmo"
+  >("Zelle");
 
   if (!isOpen) return null;
 
@@ -103,12 +106,13 @@ export function BookingModal({
     setTimeout(() => setCopiedCode(false), 2500);
   };
 
-  const handleVerifyZelle = (e: React.FormEvent) => {
+  const handleVerifyPayment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!createdBooking) return;
     updateBookingDetails(createdBooking.id, {
+      paymentMethod: selectedPaymentMethod,
       zelleSenderName: zelleSenderInput.trim() || clientName,
-      zelleMemo: zelleMemoInput.trim() || createdBooking.paymentReference,
+      zelleMemo: `${selectedPaymentMethod}: ${zelleMemoInput.trim() || createdBooking.paymentReference}`.trim(),
     });
     setVerificationSubmitted(true);
   };
@@ -434,35 +438,93 @@ export function BookingModal({
                 </button>
               </div>
 
-              {/* Deposit Instructions (Zelle) */}
+              {/* Deposit Instructions (All US Payment Methods) */}
               <div className="max-w-md mx-auto p-5 bg-[#F5EFE6] border border-[#E8DFD5] text-left text-xs space-y-3.5 text-[#2B1E1E]">
                 <div className="flex items-center justify-between border-b border-[#E8DFD5] pb-2.5">
                   <div className="flex items-center gap-2 text-[#4E141B] font-semibold text-sm">
                     <DollarSign className="w-4 h-4 text-[#C5A059]" />
-                    <span>Zelle Deposit: ${currentService.deposit}</span>
+                    <span>Deposit Due: ${currentService.deposit}</span>
                   </div>
                   <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 border border-emerald-200">
-                    Required to Secure
+                    Holds Your Slot
                   </span>
                 </div>
 
                 <p className="text-[#6B5B56] leading-relaxed text-[11px]">
-                  Please open your banking app and send the <strong>${currentService.deposit}</strong> deposit to our verified salon Zelle account:
+                  Choose your preferred payment method below to send your <strong>${currentService.deposit}</strong> deposit to salon owner <strong>Awa Diongue</strong>:
                 </p>
 
+                {/* Payment Method Selector Tabs */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
+                  {(["Zelle", "PayPal", "Apple Pay", "Cash App / Venmo"] as const).map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => setSelectedPaymentMethod(method)}
+                      className={`p-2 text-center text-[11px] font-semibold border transition-all ${
+                        selectedPaymentMethod === method
+                          ? "border-[#4E141B] bg-[#4E141B] text-white"
+                          : "border-[#E8DFD5] bg-white text-[#2B1E1E] hover:border-[#C5A059]"
+                      }`}
+                    >
+                      {method}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Method Specific Details */}
                 <div className="space-y-2 bg-white p-3.5 border border-[#E8DFD5] text-xs">
                   <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
                     <span className="text-[#6B5B56]">Recipient Name:</span>
                     <strong className="text-[#4E141B] font-semibold">Awa Diongue</strong>
                   </div>
-                  <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                    <span className="text-[#6B5B56]">Zelle Phone:</span>
-                    <strong className="text-[#4E141B] font-mono font-semibold">(773) 269-7505</strong>
-                  </div>
-                  <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                    <span className="text-[#6B5B56]">Zelle Email:</span>
-                    <strong className="text-[#4E141B] font-semibold">Maevausa@outlook.com</strong>
-                  </div>
+
+                  {selectedPaymentMethod === "Zelle" && (
+                    <>
+                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
+                        <span className="text-[#6B5B56]">Zelle Phone:</span>
+                        <strong className="text-[#4E141B] font-mono font-semibold">(773) 269-7505</strong>
+                      </div>
+                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
+                        <span className="text-[#6B5B56]">Zelle Email:</span>
+                        <strong className="text-[#4E141B] font-semibold">Maevausa@outlook.com</strong>
+                      </div>
+                    </>
+                  )}
+
+                  {selectedPaymentMethod === "PayPal" && (
+                    <>
+                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
+                        <span className="text-[#6B5B56]">PayPal Email:</span>
+                        <strong className="text-[#4E141B] font-semibold">Maevausa@outlook.com</strong>
+                      </div>
+                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
+                        <span className="text-[#6B5B56]">PayPal Phone:</span>
+                        <strong className="text-[#4E141B] font-mono font-semibold">(773) 269-7505</strong>
+                      </div>
+                    </>
+                  )}
+
+                  {selectedPaymentMethod === "Apple Pay" && (
+                    <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
+                      <span className="text-[#6B5B56]">Apple Pay Phone:</span>
+                      <strong className="text-[#4E141B] font-mono font-semibold">(773) 269-7505</strong>
+                    </div>
+                  )}
+
+                  {selectedPaymentMethod === "Cash App / Venmo" && (
+                    <>
+                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
+                        <span className="text-[#6B5B56]">Phone Search:</span>
+                        <strong className="text-[#4E141B] font-mono font-semibold">(773) 269-7505</strong>
+                      </div>
+                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
+                        <span className="text-[#6B5B56]">Email Search:</span>
+                        <strong className="text-[#4E141B] font-semibold">Maevausa@outlook.com</strong>
+                      </div>
+                    </>
+                  )}
+
                   <div className="flex justify-between items-start py-0.5">
                     <span className="text-[#6B5B56]">Required Memo:</span>
                     <span className="text-right font-mono font-bold text-[#4E141B]">
@@ -473,11 +535,11 @@ export function BookingModal({
 
                 <div className="text-[11px] text-[#6B5B56] space-y-1 pt-1">
                   <p>• Studio: <strong>1941 West Huron Street, Chicago, Illinois 60622</strong></p>
-                  <p>• Deposit is fully credited toward your remaining service balance.</p>
+                  <p>• Deposit is credited toward your total remaining balance due at appointment.</p>
                 </div>
               </div>
 
-              {/* WHO SENT WHAT: Real-time Zelle Verification Form */}
+              {/* WHO SENT WHAT: Real-time Payment Verification Form */}
               <div className="max-w-md mx-auto p-4 sm:p-5 bg-white border-2 border-[#C5A059] text-left text-xs space-y-3">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-[#C5A059]" />
@@ -493,23 +555,39 @@ export function BookingModal({
                       <span>Deposit Verification Submitted!</span>
                     </div>
                     <p className="text-[11px] text-emerald-700">
-                      Awa Diongue has been notified that deposit was sent by <strong>{zelleSenderInput}</strong> (Ref: <strong>{createdBooking?.paymentReference}</strong>). You will receive confirmation once verified.
+                      Awa Diongue has been notified that your deposit was sent via <strong>{selectedPaymentMethod}</strong> by <strong>{zelleSenderInput}</strong> (Ref: <strong>{createdBooking?.paymentReference}</strong>). You will receive confirmation once verified.
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={handleVerifyZelle} className="space-y-3">
+                  <form onSubmit={handleVerifyPayment} className="space-y-3">
                     <p className="text-[11px] text-[#6B5B56] leading-relaxed">
-                      To help <strong>Awa Diongue</strong> immediately match and verify your payment, please enter the name shown on the Zelle account you sent from:
+                      To help <strong>Awa Diongue</strong> verify your deposit immediately, enter your payment account name:
                     </p>
 
                     <div>
                       <label className="block text-[10px] font-bold uppercase tracking-wider text-[#4E141B] mb-1">
-                        Name on Your Zelle Account *
+                        Payment Method Used
+                      </label>
+                      <select
+                        value={selectedPaymentMethod}
+                        onChange={(e) => setSelectedPaymentMethod(e.target.value as any)}
+                        className="w-full p-2.5 border border-[#E8DFD5] text-xs focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
+                      >
+                        <option value="Zelle">Zelle (773-269-7505 / Maevausa@outlook.com)</option>
+                        <option value="PayPal">PayPal (Maevausa@outlook.com / 773-269-7505)</option>
+                        <option value="Apple Pay">Apple Pay (773-269-7505)</option>
+                        <option value="Cash App / Venmo">Cash App / Venmo (773-269-7505)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[#4E141B] mb-1">
+                        Name on Your Payment Account *
                       </label>
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Jane Doe (or your friend/partner's name)"
+                        placeholder="e.g. Jane Doe (or your bank / PayPal name)"
                         value={zelleSenderInput}
                         onChange={(e) => setZelleSenderInput(e.target.value)}
                         className="w-full p-2.5 border border-[#E8DFD5] text-xs focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
@@ -518,11 +596,11 @@ export function BookingModal({
 
                     <div>
                       <label className="block text-[10px] font-bold uppercase tracking-wider text-[#4E141B] mb-1">
-                        Zelle Confirmation / Memo Note (Optional)
+                        Confirmation / Memo Note (Optional)
                       </label>
                       <input
                         type="text"
-                        placeholder={`e.g. Sent via Chase / ${createdBooking?.paymentReference}`}
+                        placeholder={`e.g. Sent ${selectedPaymentMethod} / ${createdBooking?.paymentReference}`}
                         value={zelleMemoInput}
                         onChange={(e) => setZelleMemoInput(e.target.value)}
                         className="w-full p-2.5 border border-[#E8DFD5] text-xs focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
@@ -533,7 +611,7 @@ export function BookingModal({
                       type="submit"
                       className="w-full py-2.5 bg-[#4E141B] text-white text-xs uppercase tracking-widest font-semibold hover:bg-[#3A0E14] rounded-none transition-colors touch-manipulation min-h-[44px]"
                     >
-                      Confirm I Sent My Zelle Deposit
+                      Confirm I Sent My Deposit
                     </button>
                   </form>
                 )}

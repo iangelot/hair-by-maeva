@@ -38,7 +38,9 @@ export async function POST(req: Request) {
             deposit_amount: booking.depositAmount,
             notes: booking.notes || null,
             zelle_sender_name: booking.zelleSenderName || null,
-            zelle_memo: booking.zelleMemo || null,
+            zelle_memo: booking.paymentMethod
+              ? `[Method: ${booking.paymentMethod}] ${booking.zelleMemo || ""}`.trim()
+              : (booking.zelleMemo || null),
             payment_verified: booking.status === "confirmed",
           },
         ]);
@@ -113,22 +115,27 @@ export async function POST(req: Request) {
             </div>
 
             <div style="background-color: #FAF7F2; border: 1px solid #C5A059; padding: 16px; margin-top: 16px;">
-              <h3 style="color: #4E141B; margin: 0 0 8px 0; font-size: 14px;">Zelle Deposit Verification Match</h3>
+              <h3 style="color: #4E141B; margin: 0 0 8px 0; font-size: 14px;">Deposit & Payment Verification</h3>
               <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
                 <strong>Unique Booking Reference:</strong> <span style="font-family: monospace; font-size: 14px; color: #4E141B;">${booking.paymentReference || "N/A"}</span>
               </p>
+              ${booking.paymentMethod ? `
+              <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
+                <strong>Payment Channel Selected:</strong> <span style="font-weight: bold; color: #4E141B; background: #FAF7F2; border: 1px solid #C5A059; padding: 2px 6px;">${booking.paymentMethod}</span>
+              </p>
+              ` : ""}
               ${booking.zelleSenderName ? `
               <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
-                <strong>Sender Name on Zelle:</strong> <span style="font-weight: bold; color: #4E141B;">${booking.zelleSenderName}</span>
+                <strong>Sender Account Name:</strong> <span style="font-weight: bold; color: #4E141B;">${booking.zelleSenderName}</span>
               </p>
               ` : `
               <p style="font-size: 11px; margin: 4px 0; color: #6B5B56; font-style: italic;">
-                Client has not yet submitted their Zelle sender name.
+                Client has not yet submitted their payment account name.
               </p>
               `}
               ${booking.zelleMemo ? `
               <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
-                <strong>Client Memo:</strong> ${booking.zelleMemo}
+                <strong>Client Memo / Note:</strong> ${booking.zelleMemo}
               </p>
               ` : ""}
             </div>

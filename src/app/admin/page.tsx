@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   useStore,
@@ -50,10 +50,36 @@ export default function AdminPage() {
     resetToDefaults,
   } = useStore();
 
-  // Authentication State
+  // Authentication State & Persistent 45-min Session
+  const ADMIN_SESSION_KEY = "hbm_admin_session_auth_v1";
+  const SESSION_DURATION_MS = 45 * 60 * 1000; // 45 minutes
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passkey, setPasskey] = useState("");
   const [authError, setAuthError] = useState(false);
+
+  // Check saved session on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(ADMIN_SESSION_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.expiresAt && Date.now() < parsed.expiresAt) {
+          setIsAuthenticated(true);
+          // Refresh sliding session window
+          localStorage.setItem(
+            ADMIN_SESSION_KEY,
+            JSON.stringify({
+              authenticated: true,
+              expiresAt: Date.now() + SESSION_DURATION_MS,
+            })
+          );
+        } else {
+          localStorage.removeItem(ADMIN_SESSION_KEY);
+        }
+      }
+    } catch {}
+  }, []);
 
   // Tabs: 'services' | 'bookings' | 'gallery' | 'payments'
   const [activeTab, setActiveTab] = useState<
@@ -84,15 +110,33 @@ export default function AdminPage() {
   const [imageUrlInput, setImageUrlInput] = useState("");
   const [imageTitleInput, setImageTitleInput] = useState("");
 
-  // Simple passkey unlock
+  // Passkey unlock with session storage
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passkey === "admin123" || passkey.toLowerCase() === "admin") {
+    const cleanKey = passkey.trim();
+    if (cleanKey === "admin123" || cleanKey.toLowerCase() === "admin") {
       setIsAuthenticated(true);
       setAuthError(false);
+      try {
+        localStorage.setItem(
+          ADMIN_SESSION_KEY,
+          JSON.stringify({
+            authenticated: true,
+            expiresAt: Date.now() + SESSION_DURATION_MS,
+          })
+        );
+      } catch {}
     } else {
       setAuthError(true);
     }
+  };
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem(ADMIN_SESSION_KEY);
+    } catch {}
+    setIsAuthenticated(false);
+    setPasskey("");
   };
 
   // Open Service Modal
@@ -215,19 +259,19 @@ export default function AdminPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#4E141B] mb-1.5">
-                Enter Admin Passkey
+                Admin Passkey
               </label>
               <input
                 type="password"
                 required
-                placeholder="Default: admin123"
+                placeholder="Enter passkey"
                 value={passkey}
                 onChange={(e) => setPasskey(e.target.value)}
                 className="w-full p-3 border border-[#E8DFD5] text-sm focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
               />
               {authError && (
-                <p className="text-xs text-red-600 mt-1">
-                  Incorrect passkey. Default is: admin123
+                <p className="text-xs text-red-600 mt-1.5">
+                  Incorrect passkey. Please check and try again.
                 </p>
               )}
             </div>
@@ -282,7 +326,7 @@ export default function AdminPage() {
               </Link>
 
               <button
-                onClick={() => setIsAuthenticated(false)}
+                onClick={handleLogout}
                 className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#D6C7B8] hover:text-white border border-[#4E141B] rounded-none"
               >
                 Sign Out
@@ -580,7 +624,7 @@ export default function AdminPage() {
                         )}
                       </div>
 
-                      {/* Zelle Verification & Ref Code */}
+                      {/* Deposit Verification & Ref Code */}
                       <div className="mt-2.5 p-3 bg-[#FAF7F2] border border-[#E8DFD5] text-[11px] space-y-1.5">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <span className="font-semibold text-[#4E141B]">
@@ -596,7 +640,7 @@ export default function AdminPage() {
                             </span>
                           ) : (
                             <span className="text-[10px] uppercase font-bold text-neutral-500 bg-neutral-100 px-2 py-0.5">
-                              ⏳ Awaiting Zelle Deposit
+                              ⏳ Awaiting Deposit Payment
                             </span>
                           )}
                         </div>
@@ -604,18 +648,18 @@ export default function AdminPage() {
                         {booking.zelleSenderName ? (
                           <div className="pt-1 text-[#2B1E1E]">
                             <p>
-                              <span className="text-[#6B5B56]">Client Zelle Account Name:</span>{" "}
+                              <span className="text-[#6B5B56]">Client Payment Account Name:</span>{" "}
                               <strong className="text-[#4E141B] font-semibold">{booking.zelleSenderName}</strong>
                             </p>
                             {booking.zelleMemo && (
                               <p className="text-[10px] text-[#6B5B56] mt-0.5">
-                                Memo / Ref note: <em>{booking.zelleMemo}</em>
+                                Channel & Notes: <em>{booking.zelleMemo}</em>
                               </p>
                             )}
                           </div>
                         ) : (
                           <p className="text-[#6B5B56] italic text-[10px] pt-0.5">
-                            Client has not submitted their Zelle sender name yet.
+                            Client has not submitted their payment sender name yet.
                           </p>
                         )}
                       </div>
@@ -800,57 +844,106 @@ export default function AdminPage() {
               <div className="bg-white border border-[#E8DFD5] p-6 space-y-4">
                 <h3 className="text-sm uppercase tracking-wider font-semibold text-[#4E141B] flex items-center gap-2">
                   <DollarSign className="w-4 h-4 text-[#C5A059]" />
-                  Zelle & US Deposit Channels
+                  Accepted US Payment Channels
                 </h3>
+                <p className="text-xs text-[#6B5B56]">
+                  Configure your verified deposit details. These are displayed to clients on the booking confirmation and checkout screens.
+                </p>
 
                 <div>
                   <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                    Zelle Account Recipient Name
+                    Recipient Full Name (All Methods)
                   </label>
                   <input
                     type="text"
-                    value={paymentSettings.zelleRecipientName || "Awa Diongue"}
+                    value={paymentSettings.recipientName || paymentSettings.zelleRecipientName || "Awa Diongue"}
                     onChange={(e) =>
-                      updatePaymentSettings({ zelleRecipientName: e.target.value })
+                      updatePaymentSettings({
+                        recipientName: e.target.value,
+                        zelleRecipientName: e.target.value,
+                      })
                     }
                     placeholder="Awa Diongue"
                     className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                    Zelle Phone Number (with Zelle activated)
-                  </label>
-                  <input
-                    type="text"
-                    value={paymentSettings.zellePhone || "(773) 269-7505"}
-                    onChange={(e) =>
-                      updatePaymentSettings({ zellePhone: e.target.value })
-                    }
-                    placeholder="(773) 269-7505"
-                    className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                      Phone (Zelle, Apple Pay, PayPal)
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentSettings.phone || paymentSettings.zellePhone || "(773) 269-7505"}
+                      onChange={(e) =>
+                        updatePaymentSettings({
+                          phone: e.target.value,
+                          zellePhone: e.target.value,
+                          applePayNumber: e.target.value,
+                          paypalPhone: e.target.value,
+                        })
+                      }
+                      placeholder="(773) 269-7505"
+                      className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                      Email (Zelle, PayPal)
+                    </label>
+                    <input
+                      type="email"
+                      value={paymentSettings.email || paymentSettings.zelleEmail || "Maevausa@outlook.com"}
+                      onChange={(e) =>
+                        updatePaymentSettings({
+                          email: e.target.value,
+                          zelleEmail: e.target.value,
+                          paypalEmail: e.target.value,
+                        })
+                      }
+                      placeholder="Maevausa@outlook.com"
+                      className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                    Zelle Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={paymentSettings.zelleEmail || "Maevausa@outlook.com"}
-                    onChange={(e) =>
-                      updatePaymentSettings({ zelleEmail: e.target.value })
-                    }
-                    placeholder="Maevausa@outlook.com"
-                    className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#E8DFD5]">
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                      Cash App / Cashtag
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentSettings.cashAppCashtag || "(773) 269-7505"}
+                      onChange={(e) =>
+                        updatePaymentSettings({ cashAppCashtag: e.target.value })
+                      }
+                      placeholder="$Cashtag or (773) 269-7505"
+                      className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                      Venmo Handle / Name
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentSettings.venmoHandle || "Awa Diongue / (773) 269-7505"}
+                      onChange={(e) =>
+                        updatePaymentSettings({ venmoHandle: e.target.value })
+                      }
+                      placeholder="@username or phone"
+                      className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
+                    />
+                  </div>
                 </div>
 
                 <div className="pt-2 border-t border-[#E8DFD5]">
                   <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                    Deposit Instructions Note (shown to clients)
+                    Client Deposit Instructions
                   </label>
                   <textarea
                     rows={2}
@@ -858,7 +951,7 @@ export default function AdminPage() {
                     onChange={(e) =>
                       updatePaymentSettings({ instructions: e.target.value })
                     }
-                    placeholder="Send Zelle deposit to Awa Diongue..."
+                    placeholder="Deposits accepted via Zelle, PayPal, Apple Pay..."
                     className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
                   />
                 </div>

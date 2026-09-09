@@ -21,18 +21,25 @@ export interface BookingRecord {
   status: "pending_deposit" | "confirmed" | "completed" | "cancelled";
   createdAt: string;
   paymentReference?: string;
+  paymentMethod?: string;
   zelleSenderName?: string;
   zelleMemo?: string;
   zelleProofImage?: string;
 }
 
 export interface PaymentSettings {
+  recipientName: string;
+  phone: string;
+  email: string;
   zelleRecipientName: string;
   zelleEmail: string;
   zellePhone: string;
   zelleIdentifier: string;
-  cashAppCashtag: string;
+  paypalEmail: string;
+  paypalPhone: string;
   applePayNumber: string;
+  cashAppCashtag: string;
+  venmoHandle: string;
   squareBookingLink: string;
   stripePaymentLink: string;
   instructions: string;
@@ -74,15 +81,21 @@ interface StoreContextType {
 }
 
 const defaultPaymentSettings: PaymentSettings = {
+  recipientName: "Awa Diongue",
+  phone: "(773) 269-7505",
+  email: "Maevausa@outlook.com",
   zelleRecipientName: "Awa Diongue",
   zelleEmail: "Maevausa@outlook.com",
   zellePhone: "(773) 269-7505",
-  zelleIdentifier: "Maevausa@outlook.com or (773) 269-7505 (Awa Diongue)",
-  cashAppCashtag: "",
-  applePayNumber: "",
+  zelleIdentifier: "(773) 269-7505 or Maevausa@outlook.com (Awa Diongue)",
+  paypalEmail: "Maevausa@outlook.com",
+  paypalPhone: "(773) 269-7505",
+  applePayNumber: "(773) 269-7505",
+  cashAppCashtag: "(773) 269-7505",
+  venmoHandle: "Awa Diongue / (773) 269-7505",
   squareBookingLink: "",
   stripePaymentLink: "",
-  instructions: "Send Zelle deposit to Awa Diongue using phone (773) 269-7505 or email Maevausa@outlook.com. Enter your full name and booking reference in the Zelle memo.",
+  instructions: "Deposits accepted via Zelle, PayPal, Apple Pay, Cash App, or Venmo to Awa Diongue using phone (773) 269-7505 or email Maevausa@outlook.com. Please include your Booking Reference in the memo.",
 };
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);

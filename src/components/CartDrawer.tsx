@@ -51,6 +51,9 @@ export function CartDrawer() {
   const [zelleMemoInput, setZelleMemoInput] = useState("");
   const [verificationSubmitted, setVerificationSubmitted] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    "Zelle" | "PayPal" | "Apple Pay" | "Cash App / Venmo"
+  >("Zelle");
 
   if (!isOpen) return null;
 
@@ -107,12 +110,13 @@ export function CartDrawer() {
     setTimeout(() => setCopiedCode(false), 2500);
   };
 
-  const handleVerifyZelle = (e: React.FormEvent) => {
+  const handleVerifyPayment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!createdBooking) return;
     updateBookingDetails(createdBooking.id, {
+      paymentMethod: selectedPaymentMethod,
       zelleSenderName: zelleSenderInput.trim() || clientName,
-      zelleMemo: zelleMemoInput.trim() || createdBooking.paymentReference,
+      zelleMemo: `${selectedPaymentMethod}: ${zelleMemoInput.trim() || createdBooking.paymentReference}`.trim(),
     });
     setVerificationSubmitted(true);
   };
@@ -439,8 +443,8 @@ export function CartDrawer() {
                   </button>
                 </div>
 
-                {/* Zelle Deposit Instructions */}
-                <div className="p-4 bg-[#F5EFE6] border border-[#E8DFD5] text-left text-xs space-y-2 text-[#2B1E1E]">
+                {/* Deposit Instructions (All US Payment Methods) */}
+                <div className="p-4 bg-[#F5EFE6] border border-[#E8DFD5] text-left text-xs space-y-2.5 text-[#2B1E1E]">
                   <div className="flex justify-between items-center border-b border-[#E8DFD5] pb-1.5">
                     <span className="font-semibold text-[#4E141B]">
                       Required Deposit: ${createdBooking?.depositAmount}
@@ -451,13 +455,56 @@ export function CartDrawer() {
                   </div>
 
                   <p className="text-[11px] text-[#6B5B56]">
-                    Send your deposit via Zelle to our verified salon account:
+                    Select payment method to send deposit to <strong>Awa Diongue</strong>:
                   </p>
 
+                  {/* Payment Channel Selector Tabs */}
+                  <div className="grid grid-cols-2 gap-1 pt-0.5">
+                    {(["Zelle", "PayPal", "Apple Pay", "Cash App / Venmo"] as const).map((method) => (
+                      <button
+                        key={method}
+                        type="button"
+                        onClick={() => setSelectedPaymentMethod(method)}
+                        className={`p-1.5 text-center text-[11px] font-semibold border transition-all ${
+                          selectedPaymentMethod === method
+                            ? "border-[#4E141B] bg-[#4E141B] text-white"
+                            : "border-[#E8DFD5] bg-white text-[#2B1E1E] hover:border-[#C5A059]"
+                        }`}
+                      >
+                        {method}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Method details */}
                   <div className="bg-white p-3 border border-[#E8DFD5] space-y-1 text-[11px]">
                     <p><span className="text-[#6B5B56]">Recipient:</span> <strong className="text-[#4E141B]">Awa Diongue</strong></p>
-                    <p><span className="text-[#6B5B56]">Phone:</span> <strong className="font-mono text-[#4E141B]">(773) 269-7505</strong></p>
-                    <p><span className="text-[#6B5B56]">Email:</span> <strong className="text-[#4E141B]">Maevausa@outlook.com</strong></p>
+
+                    {selectedPaymentMethod === "Zelle" && (
+                      <>
+                        <p><span className="text-[#6B5B56]">Zelle Phone:</span> <strong className="font-mono text-[#4E141B]">(773) 269-7505</strong></p>
+                        <p><span className="text-[#6B5B56]">Zelle Email:</span> <strong className="text-[#4E141B]">Maevausa@outlook.com</strong></p>
+                      </>
+                    )}
+
+                    {selectedPaymentMethod === "PayPal" && (
+                      <>
+                        <p><span className="text-[#6B5B56]">PayPal Email:</span> <strong className="text-[#4E141B]">Maevausa@outlook.com</strong></p>
+                        <p><span className="text-[#6B5B56]">PayPal Phone:</span> <strong className="font-mono text-[#4E141B]">(773) 269-7505</strong></p>
+                      </>
+                    )}
+
+                    {selectedPaymentMethod === "Apple Pay" && (
+                      <p><span className="text-[#6B5B56]">Apple Pay Phone:</span> <strong className="font-mono text-[#4E141B]">(773) 269-7505</strong></p>
+                    )}
+
+                    {selectedPaymentMethod === "Cash App / Venmo" && (
+                      <>
+                        <p><span className="text-[#6B5B56]">Phone Search:</span> <strong className="font-mono text-[#4E141B]">(773) 269-7505</strong></p>
+                        <p><span className="text-[#6B5B56]">Email Search:</span> <strong className="text-[#4E141B]">Maevausa@outlook.com</strong></p>
+                      </>
+                    )}
+
                     <p><span className="text-[#6B5B56]">Memo:</span> <strong className="font-mono text-[#4E141B]">{createdBooking?.paymentReference} - {clientName}</strong></p>
                   </div>
                 </div>
@@ -466,26 +513,45 @@ export function CartDrawer() {
                 <div className="p-4 bg-white border-2 border-[#C5A059] text-left text-xs space-y-2.5">
                   <div className="flex items-center gap-1.5 text-sm font-semibold text-[#4E141B]">
                     <ShieldCheck className="w-4 h-4 text-[#C5A059]" />
-                    <span>Verify Who Sent What</span>
+                    <span>Payment Verification</span>
                   </div>
 
                   {verificationSubmitted ? (
                     <div className="p-2.5 bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px]">
-                      ✓ Verification logged! Awa Diongue has been notified that deposit was sent by <strong>{zelleSenderInput}</strong>.
+                      ✓ Verification logged! Awa Diongue has been notified that deposit was sent via <strong>{selectedPaymentMethod}</strong> by <strong>{zelleSenderInput}</strong>.
                     </div>
                   ) : (
-                    <form onSubmit={handleVerifyZelle} className="space-y-2">
-                      <p className="text-[11px] text-[#6B5B56]">
-                        Enter the name on the Zelle account you paid from:
-                      </p>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Jane Doe (or your bank account name)"
-                        value={zelleSenderInput}
-                        onChange={(e) => setZelleSenderInput(e.target.value)}
-                        className="w-full p-2 border border-[#E8DFD5] text-xs bg-white text-[#2B1E1E]"
-                      />
+                    <form onSubmit={handleVerifyPayment} className="space-y-2">
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#4E141B] mb-0.5">
+                          Method Used
+                        </label>
+                        <select
+                          value={selectedPaymentMethod}
+                          onChange={(e) => setSelectedPaymentMethod(e.target.value as any)}
+                          className="w-full p-1.5 border border-[#E8DFD5] text-xs bg-white text-[#2B1E1E]"
+                        >
+                          <option value="Zelle">Zelle (773-269-7505 / Maevausa@outlook.com)</option>
+                          <option value="PayPal">PayPal (Maevausa@outlook.com / 773-269-7505)</option>
+                          <option value="Apple Pay">Apple Pay (773-269-7505)</option>
+                          <option value="Cash App / Venmo">Cash App / Venmo (773-269-7505)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#4E141B] mb-0.5">
+                          Name on Payment Account *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Jane Doe (or your bank / account name)"
+                          value={zelleSenderInput}
+                          onChange={(e) => setZelleSenderInput(e.target.value)}
+                          className="w-full p-2 border border-[#E8DFD5] text-xs bg-white text-[#2B1E1E]"
+                        />
+                      </div>
+
                       <button
                         type="submit"
                         className="w-full py-2 bg-[#4E141B] text-white text-xs uppercase tracking-widest font-semibold hover:bg-[#3A0E14]"
