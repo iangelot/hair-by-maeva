@@ -142,7 +142,7 @@ export async function POST(req: Request) {
 
             <div style="margin-top: 20px; font-size: 11px; color: #6B5B56; text-align: center; border-top: 1px solid #E8DFD5; padding-top: 14px;">
               <p style="margin: 2px 0;">Hair By Maeva • 1941 West Huron Street, Chicago, Illinois 60622</p>
-              <p style="margin: 2px 0;">Contact: (773) 269-7505 • Maevausa@outlook.com</p>
+              <p style="margin: 2px 0;">Contact: +1 (773) 269-7505 • Maevausa@outlook.com</p>
             </div>
           </div>
         `;

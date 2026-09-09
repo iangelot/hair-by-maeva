@@ -61,18 +61,28 @@ export function BookingModal({
   const totalPrice = lengthObj ? lengthObj.price : currentService.price;
 
   const availableTimes = [
+    "07:00 AM",
+    "08:00 AM",
     "09:00 AM",
-    "10:30 AM",
+    "10:00 AM",
+    "11:00 AM",
     "12:00 PM",
-    "01:30 PM",
+    "01:00 PM",
+    "02:00 PM",
     "03:00 PM",
-    "04:30 PM",
+    "04:00 PM",
   ];
 
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedDate || !selectedTime || !clientName || !clientPhone) {
       alert("Please complete all required fields.");
+      return;
+    }
+
+    const dayOfWeek = new Date(selectedDate + "T00:00:00").getDay();
+    if (dayOfWeek === 1) {
+      alert("Hair By Maeva is CLOSED on Mondays. Please choose a date between Tuesday and Sunday (7:00 AM – 4:00 PM).");
       return;
     }
 
@@ -228,16 +238,28 @@ export function BookingModal({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-[#4E141B] mb-2">
-                    3. Preferred Date *
+                    3. Preferred Date * <span className="text-[11px] font-normal text-[#6B5B56] normal-case">(Tue – Sun)</span>
                   </label>
                   <input
                     type="date"
                     required
                     value={selectedDate}
                     min={new Date().toISOString().split("T")[0]}
-                    onChange={(e) => setSelectedDate(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val) {
+                        const day = new Date(val + "T00:00:00").getDay();
+                        if (day === 1) {
+                          alert("Hair By Maeva is CLOSED on Mondays. Please select a date from Tuesday to Sunday (7:00 AM – 4:00 PM).");
+                          setSelectedDate("");
+                          return;
+                        }
+                      }
+                      setSelectedDate(val);
+                    }}
                     className="w-full p-3 border border-[#E8DFD5] text-sm focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
                   />
+                  <p className="text-[11px] text-[#6B5B56] mt-1">Hours: Tue – Sun, 7:00 AM – 4:00 PM (Closed Mon)</p>
                 </div>
 
                 <div>
@@ -483,7 +505,7 @@ export function BookingModal({
                     <>
                       <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
                         <span className="text-[#6B5B56]">Zelle Phone:</span>
-                        <strong className="text-[#4E141B] font-mono font-semibold">(773) 269-7505</strong>
+                        <strong className="text-[#4E141B] font-mono font-semibold">+1 (773) 269-7505</strong>
                       </div>
                       <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
                         <span className="text-[#6B5B56]">Zelle Email:</span>
@@ -500,7 +522,7 @@ export function BookingModal({
                       </div>
                       <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
                         <span className="text-[#6B5B56]">PayPal Phone:</span>
-                        <strong className="text-[#4E141B] font-mono font-semibold">(773) 269-7505</strong>
+                        <strong className="text-[#4E141B] font-mono font-semibold">+1 (773) 269-7505</strong>
                       </div>
                     </>
                   )}
@@ -508,7 +530,7 @@ export function BookingModal({
                   {selectedPaymentMethod === "Apple Pay" && (
                     <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
                       <span className="text-[#6B5B56]">Apple Pay Phone:</span>
-                      <strong className="text-[#4E141B] font-mono font-semibold">(682) 454-1530</strong>
+                      <strong className="text-[#4E141B] font-mono font-semibold">+1 (773) 269-7505</strong>
                     </div>
                   )}
 
@@ -516,7 +538,7 @@ export function BookingModal({
                     <>
                       <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
                         <span className="text-[#6B5B56]">Cash App Phone:</span>
-                        <strong className="text-[#4E141B] font-mono font-semibold">(773) 269-7505</strong>
+                        <strong className="text-[#4E141B] font-mono font-semibold">+1 (773) 269-7505</strong>
                       </div>
                       <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
                         <span className="text-[#6B5B56]">Cash App Email:</span>
@@ -574,8 +596,8 @@ export function BookingModal({
                         className="w-full p-2.5 border border-[#E8DFD5] text-xs focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
                       >
                         <option value="Cash App / Venmo">Cash App (Phone / Email Search)</option>
-                        <option value="Apple Pay">Apple Pay (682-454-1530 / 773-269-7505)</option>
-                        <option value="Zelle">Zelle (773-269-7505 / Maevausa@outlook.com)</option>
+                        <option value="Apple Pay">Apple Pay (+1 773-269-7505)</option>
+                        <option value="Zelle">Zelle (+1 773-269-7505 / Maevausa@outlook.com)</option>
                         <option value="PayPal">PayPal (Maevausa@outlook.com)</option>
                       </select>
                     </div>

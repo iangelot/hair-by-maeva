@@ -58,12 +58,16 @@ export function CartDrawer() {
   if (!isOpen) return null;
 
   const availableTimes = [
+    "07:00 AM",
+    "08:00 AM",
     "09:00 AM",
-    "10:30 AM",
+    "10:00 AM",
+    "11:00 AM",
     "12:00 PM",
-    "01:30 PM",
+    "01:00 PM",
+    "02:00 PM",
     "03:00 PM",
-    "04:30 PM",
+    "04:00 PM",
   ];
 
   const handleProceedToSchedule = () => {
@@ -75,6 +79,12 @@ export function CartDrawer() {
     e.preventDefault();
     if (!selectedDate || !selectedTime || !clientName || !clientPhone) {
       alert("Please enter your date, time slot, name, and phone number.");
+      return;
+    }
+
+    const dayOfWeek = new Date(selectedDate + "T00:00:00").getDay();
+    if (dayOfWeek === 1) {
+      alert("Hair By Maeva is CLOSED on Mondays. Please choose a booking date between Tuesday and Sunday (7:00 AM – 4:00 PM).");
       return;
     }
 
@@ -272,7 +282,7 @@ export function CartDrawer() {
                 {/* Date Selection */}
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-wider text-[#4E141B] mb-1">
-                    Select Appointment Date *
+                    Select Appointment Date * <span className="font-normal text-[#6B5B56] normal-case">(Tue – Sun)</span>
                   </label>
                   <div className="relative">
                     <input
@@ -280,11 +290,23 @@ export function CartDrawer() {
                       required
                       min={new Date().toISOString().split("T")[0]}
                       value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val) {
+                          const day = new Date(val + "T00:00:00").getDay();
+                          if (day === 1) {
+                            alert("Hair By Maeva is CLOSED on Mondays. Please select a date from Tuesday to Sunday (7:00 AM – 4:00 PM).");
+                            setSelectedDate("");
+                            return;
+                          }
+                        }
+                        setSelectedDate(val);
+                      }}
                       className="w-full p-2.5 pl-9 border border-[#E8DFD5] text-xs focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
                     />
                     <CalendarIcon className="w-4 h-4 text-[#C5A059] absolute left-3 top-3 pointer-events-none" />
                   </div>
+                  <p className="text-[10px] text-[#6B5B56] mt-1">Hours: Tue – Sun, 7:00 AM – 4:00 PM (Closed Mon)</p>
                 </div>
 
                 {/* Time Slot Selection */}
@@ -482,7 +504,7 @@ export function CartDrawer() {
 
                     {selectedPaymentMethod === "Zelle" && (
                       <>
-                        <p><span className="text-[#6B5B56]">Zelle Phone:</span> <strong className="font-mono text-[#4E141B]">(773) 269-7505</strong></p>
+                        <p><span className="text-[#6B5B56]">Zelle Phone:</span> <strong className="font-mono text-[#4E141B]">+1 (773) 269-7505</strong></p>
                         <p><span className="text-[#6B5B56]">Zelle Email:</span> <strong className="text-[#4E141B]">Maevausa@outlook.com</strong></p>
                       </>
                     )}
@@ -490,17 +512,17 @@ export function CartDrawer() {
                     {selectedPaymentMethod === "PayPal" && (
                       <>
                         <p><span className="text-[#6B5B56]">PayPal Email:</span> <strong className="text-[#4E141B]">Maevausa@outlook.com</strong></p>
-                        <p><span className="text-[#6B5B56]">PayPal Phone:</span> <strong className="font-mono text-[#4E141B]">(773) 269-7505</strong></p>
+                        <p><span className="text-[#6B5B56]">PayPal Phone:</span> <strong className="font-mono text-[#4E141B]">+1 (773) 269-7505</strong></p>
                       </>
                     )}
 
                     {selectedPaymentMethod === "Apple Pay" && (
-                      <p><span className="text-[#6B5B56]">Apple Pay Phone:</span> <strong className="font-mono text-[#4E141B]">(682) 454-1530</strong></p>
+                      <p><span className="text-[#6B5B56]">Apple Pay Phone:</span> <strong className="font-mono text-[#4E141B]">+1 (773) 269-7505</strong></p>
                     )}
 
                     {selectedPaymentMethod === "Cash App / Venmo" && (
                       <>
-                        <p><span className="text-[#6B5B56]">Cash App Phone:</span> <strong className="font-mono text-[#4E141B]">(773) 269-7505</strong></p>
+                        <p><span className="text-[#6B5B56]">Cash App Phone:</span> <strong className="font-mono text-[#4E141B]">+1 (773) 269-7505</strong></p>
                         <p><span className="text-[#6B5B56]">Cash App Email:</span> <strong className="text-[#4E141B]">Maevausa@outlook.com</strong></p>
                       </>
                     )}
@@ -532,8 +554,8 @@ export function CartDrawer() {
                           className="w-full p-1.5 border border-[#E8DFD5] text-xs bg-white text-[#2B1E1E]"
                         >
                           <option value="Cash App / Venmo">Cash App (Phone / Email Search)</option>
-                          <option value="Apple Pay">Apple Pay (682-454-1530 / 773-269-7505)</option>
-                          <option value="Zelle">Zelle (773-269-7505 / Maevausa@outlook.com)</option>
+                          <option value="Apple Pay">Apple Pay (+1 773-269-7505)</option>
+                          <option value="Zelle">Zelle (+1 773-269-7505 / Maevausa@outlook.com)</option>
                           <option value="PayPal">PayPal (Maevausa@outlook.com)</option>
                         </select>
                       </div>

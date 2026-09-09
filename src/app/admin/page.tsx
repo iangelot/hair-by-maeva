@@ -875,7 +875,7 @@ export default function AdminPage() {
                     </label>
                     <input
                       type="text"
-                      value={paymentSettings.phone || paymentSettings.zellePhone || "(773) 269-7505"}
+                      value={paymentSettings.phone || paymentSettings.zellePhone || "+1 (773) 269-7505"}
                       onChange={(e) =>
                         updatePaymentSettings({
                           phone: e.target.value,
@@ -884,7 +884,7 @@ export default function AdminPage() {
                           paypalPhone: e.target.value,
                         })
                       }
-                      placeholder="(773) 269-7505"
+                      placeholder="+1 (773) 269-7505"
                       className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none font-mono"
                     />
                   </div>
@@ -916,11 +916,11 @@ export default function AdminPage() {
                     </label>
                     <input
                       type="text"
-                      value={paymentSettings.cashAppCashtag || "(773) 269-7505"}
+                      value={paymentSettings.cashAppCashtag || "+1 (773) 269-7505"}
                       onChange={(e) =>
                         updatePaymentSettings({ cashAppCashtag: e.target.value })
                       }
-                      placeholder="$Cashtag or (773) 269-7505"
+                      placeholder="+1 (773) 269-7505 or Maevausa@outlook.com"
                       className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
                     />
                   </div>
@@ -931,7 +931,7 @@ export default function AdminPage() {
                     </label>
                     <input
                       type="text"
-                      value={paymentSettings.venmoHandle || "Awa Diongue / (773) 269-7505"}
+                      value={paymentSettings.venmoHandle || "Awa Diongue / +1 (773) 269-7505"}
                       onChange={(e) =>
                         updatePaymentSettings({ venmoHandle: e.target.value })
                       }

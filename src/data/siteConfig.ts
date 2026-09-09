@@ -26,20 +26,20 @@ export interface SiteConfig {
 export const siteConfig: SiteConfig = {
   name: "Hair By Maeva",
   tagline: "Luxury Hairstylist Based in Chicago, IL",
-  phone: "(773) 269-7505",
+  phone: "+1 (773) 269-7505",
   email: "Maevausa@outlook.com",
   location: "1941 West Huron Street, Chicago, Illinois 60622",
   instagram: "https://instagram.com",
   squareBookingUrl: "",
   squareMerchantId: "",
   squareSellerKey: "",
-  notice: "Please read all policies prior to booking. A $20 deposit is required to book (strictly non-refundable). Deposits accepted via Cash App, Apple Pay, Zelle, or PayPal using phone (773) 269-7505 / (682) 454-1530 or email Maevausa@outlook.com. Remaining balance in cash only.",
+  notice: "Please read all policies prior to booking. A $20 deposit is required to book (strictly non-refundable). Deposits accepted via Cash App, Apple Pay, Zelle, or PayPal using phone +1 (773) 269-7505 or email Maevausa@outlook.com. Remaining balance in cash only.",
   policies: [
     {
       title: "Deposit & Payment Policy",
       items: [
         "Deposits are $20 and are non-refundable. A deposit is required to hold your slot.",
-        "Accepted deposit methods: Cash App, Apple Pay, Zelle, or PayPal using phone (773) 269-7505 / (682) 454-1530 or email Maevausa@outlook.com (Awa Diongue).",
+        "Accepted deposit methods: Cash App, Apple Pay, Zelle, or PayPal using phone +1 (773) 269-7505 or email Maevausa@outlook.com (Awa Diongue).",
         "Please send deposit within 30 minutes after booking or appointment will be cancelled!",
         "Remaining balance is to be paid in CASH ONLY. Other forms of payment will not be accepted for final payment!",
       ],
@@ -62,13 +62,11 @@ export const siteConfig: SiteConfig = {
       ],
     },
     {
-      title: "Salon Hours",
+      title: "Salon Hours & Booking Slots",
       items: [
-        "Tuesday: 12:00 PM - 8:00 PM",
-        "Wednesday & Thursday: 8:00 AM - 8:00 PM",
-        "Friday: 8:00 AM - 7:00 PM",
-        "Saturday: 8:00 AM - 4:00 PM",
-        "Sunday & Monday: CLOSED",
+        "Tuesday to Sunday: 7:00 AM – 4:00 PM",
+        "Booking slots available: 7:00 AM to 4:00 PM",
+        "Monday: CLOSED",
       ],
     },
   ],
