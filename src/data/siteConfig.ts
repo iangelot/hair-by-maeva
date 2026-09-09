@@ -82,10 +82,10 @@ export const siteConfig: SiteConfig = {
     {
       id: "maeva-hero-2",
       title: "Hair By Maeva Salon Policies & Guidelines",
-      src: "/images/posters/hero-maeva-official-policies.jpg",
+      src: "/images/posters/hero-maeva-official-policies.png",
       alt: "Hair By Maeva Official Policies - Deposit, Remaining Balance, Hours, and Rules",
-      width: 1024,
-      height: 709,
+      width: 1496,
+      height: 1051,
     },
     {
       id: "maeva-hero-3",
