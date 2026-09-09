@@ -1,6 +1,7 @@
 -- ============================================================
 -- HAIR BY MAEVA — SUPABASE DATABASE SCHEMA
 -- Run this in your free Supabase project: SQL Editor -> New Query -> Run
+-- Safe to run multiple times (even if tables already exist).
 -- ============================================================
 
 -- 1. BOOKINGS TABLE
@@ -24,21 +25,24 @@ create table if not exists public.bookings (
   created_at timestamp with time zone default now()
 );
 
--- Enable RLS and public access policies
 alter table public.bookings enable row level security;
 
+drop policy if exists "Allow anonymous select on bookings" on public.bookings;
 create policy "Allow anonymous select on bookings"
   on public.bookings for select
   using (true);
 
+drop policy if exists "Allow anonymous insert on bookings" on public.bookings;
 create policy "Allow anonymous insert on bookings"
   on public.bookings for insert
   with check (true);
 
+drop policy if exists "Allow anonymous update on bookings" on public.bookings;
 create policy "Allow anonymous update on bookings"
   on public.bookings for update
   using (true);
 
+drop policy if exists "Allow anonymous delete on bookings" on public.bookings;
 create policy "Allow anonymous delete on bookings"
   on public.bookings for delete
   using (true);
@@ -57,18 +61,22 @@ create table if not exists public.services (
 
 alter table public.services enable row level security;
 
+drop policy if exists "Allow anonymous select on services" on public.services;
 create policy "Allow anonymous select on services"
   on public.services for select
   using (true);
 
+drop policy if exists "Allow anonymous insert on services" on public.services;
 create policy "Allow anonymous insert on services"
   on public.services for insert
   with check (true);
 
+drop policy if exists "Allow anonymous update on services" on public.services;
 create policy "Allow anonymous update on services"
   on public.services for update
   using (true);
 
+drop policy if exists "Allow anonymous delete on services" on public.services;
 create policy "Allow anonymous delete on services"
   on public.services for delete
   using (true);
@@ -85,6 +93,7 @@ create table if not exists public.site_content (
 alter table public.site_content enable row level security;
 
 -- Every visitor can read the latest content
+drop policy if exists "Allow anonymous select on site_content" on public.site_content;
 create policy "Allow anonymous select on site_content"
   on public.site_content for select
   to anon, authenticated
