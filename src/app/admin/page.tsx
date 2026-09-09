@@ -871,7 +871,7 @@ export default function AdminPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                      Phone (Zelle, Apple Pay, PayPal)
+                      Payment Phone (Cash App, Zelle, Apple Pay)
                     </label>
                     <input
                       type="text"
@@ -882,6 +882,7 @@ export default function AdminPage() {
                           zellePhone: e.target.value,
                           applePayNumber: e.target.value,
                           paypalPhone: e.target.value,
+                          cashAppCashtag: e.target.value,
                         })
                       }
                       placeholder="+1 (773) 269-7505"
@@ -891,51 +892,18 @@ export default function AdminPage() {
 
                   <div>
                     <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                      Email (Zelle, PayPal)
+                      Recipient Name
                     </label>
                     <input
-                      type="email"
-                      value={paymentSettings.email || paymentSettings.zelleEmail || "Maevausa@outlook.com"}
+                      type="text"
+                      value={paymentSettings.recipientName || "Awa Diongue"}
                       onChange={(e) =>
                         updatePaymentSettings({
-                          email: e.target.value,
-                          zelleEmail: e.target.value,
-                          paypalEmail: e.target.value,
+                          recipientName: e.target.value,
+                          zelleRecipientName: e.target.value,
                         })
                       }
-                      placeholder="Maevausa@outlook.com"
-                      className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#E8DFD5]">
-                  <div>
-                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                      Cash App / Cashtag
-                    </label>
-                    <input
-                      type="text"
-                      value={paymentSettings.cashAppCashtag || "+1 (773) 269-7505"}
-                      onChange={(e) =>
-                        updatePaymentSettings({ cashAppCashtag: e.target.value })
-                      }
-                      placeholder="+1 (773) 269-7505 or Maevausa@outlook.com"
-                      className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                      Venmo Handle / Name
-                    </label>
-                    <input
-                      type="text"
-                      value={paymentSettings.venmoHandle || "Awa Diongue / +1 (773) 269-7505"}
-                      onChange={(e) =>
-                        updatePaymentSettings({ venmoHandle: e.target.value })
-                      }
-                      placeholder="@username or phone"
+                      placeholder="Awa Diongue"
                       className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
                     />
                   </div>
@@ -951,7 +919,7 @@ export default function AdminPage() {
                     onChange={(e) =>
                       updatePaymentSettings({ instructions: e.target.value })
                     }
-                    placeholder="Deposits accepted via Zelle, PayPal, Apple Pay..."
+                    placeholder="Deposits accepted via Cash App, Zelle, or Apple Pay on +1 (773) 269-7505..."
                     className="w-full p-2.5 border border-neutral-300 text-xs focus:outline-none focus:border-[#4E141B] rounded-none"
                   />
                 </div>

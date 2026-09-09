@@ -40,8 +40,8 @@ export function BookingModal({
   const [verificationSubmitted, setVerificationSubmitted] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
-    "Zelle" | "PayPal" | "Apple Pay" | "Cash App / Venmo"
-  >("Zelle");
+    "Cash App" | "Zelle" | "Apple Pay"
+  >("Cash App");
 
   if (!isOpen) return null;
 
@@ -477,8 +477,8 @@ export function BookingModal({
                 </p>
 
                 {/* Payment Method Selector Tabs */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
-                  {(["Zelle", "PayPal", "Apple Pay", "Cash App / Venmo"] as const).map((method) => (
+                <div className="grid grid-cols-3 gap-1.5 pt-1">
+                  {(["Cash App", "Zelle", "Apple Pay"] as const).map((method) => (
                     <button
                       key={method}
                       type="button"
@@ -501,30 +501,18 @@ export function BookingModal({
                     <strong className="text-[#4E141B] font-semibold">Awa Diongue</strong>
                   </div>
 
-                  {selectedPaymentMethod === "Zelle" && (
-                    <>
-                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                        <span className="text-[#6B5B56]">Zelle Phone:</span>
-                        <strong className="text-[#4E141B] font-mono font-semibold">+1 (773) 269-7505</strong>
-                      </div>
-                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                        <span className="text-[#6B5B56]">Zelle Email:</span>
-                        <strong className="text-[#4E141B] font-semibold">Maevausa@outlook.com</strong>
-                      </div>
-                    </>
+                  {selectedPaymentMethod === "Cash App" && (
+                    <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
+                      <span className="text-[#6B5B56]">Cash App Phone:</span>
+                      <strong className="text-[#4E141B] font-mono font-semibold">+1 (773) 269-7505</strong>
+                    </div>
                   )}
 
-                  {selectedPaymentMethod === "PayPal" && (
-                    <>
-                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                        <span className="text-[#6B5B56]">PayPal Email:</span>
-                        <strong className="text-[#4E141B] font-semibold">Maevausa@outlook.com</strong>
-                      </div>
-                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                        <span className="text-[#6B5B56]">PayPal Phone:</span>
-                        <strong className="text-[#4E141B] font-mono font-semibold">+1 (773) 269-7505</strong>
-                      </div>
-                    </>
+                  {selectedPaymentMethod === "Zelle" && (
+                    <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
+                      <span className="text-[#6B5B56]">Zelle Phone:</span>
+                      <strong className="text-[#4E141B] font-mono font-semibold">+1 (773) 269-7505</strong>
+                    </div>
                   )}
 
                   {selectedPaymentMethod === "Apple Pay" && (
@@ -532,19 +520,6 @@ export function BookingModal({
                       <span className="text-[#6B5B56]">Apple Pay Phone:</span>
                       <strong className="text-[#4E141B] font-mono font-semibold">+1 (773) 269-7505</strong>
                     </div>
-                  )}
-
-                  {selectedPaymentMethod === "Cash App / Venmo" && (
-                    <>
-                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                        <span className="text-[#6B5B56]">Cash App Phone:</span>
-                        <strong className="text-[#4E141B] font-mono font-semibold">+1 (773) 269-7505</strong>
-                      </div>
-                      <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                        <span className="text-[#6B5B56]">Cash App Email:</span>
-                        <strong className="text-[#4E141B] font-semibold">Maevausa@outlook.com</strong>
-                      </div>
-                    </>
                   )}
 
                   <div className="flex justify-between items-start py-0.5">
@@ -595,10 +570,9 @@ export function BookingModal({
                         onChange={(e) => setSelectedPaymentMethod(e.target.value as any)}
                         className="w-full p-2.5 border border-[#E8DFD5] text-xs focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
                       >
-                        <option value="Cash App / Venmo">Cash App (Phone / Email Search)</option>
+                        <option value="Cash App">Cash App (+1 773-269-7505)</option>
+                        <option value="Zelle">Zelle (+1 773-269-7505)</option>
                         <option value="Apple Pay">Apple Pay (+1 773-269-7505)</option>
-                        <option value="Zelle">Zelle (+1 773-269-7505 / Maevausa@outlook.com)</option>
-                        <option value="PayPal">PayPal (Maevausa@outlook.com)</option>
                       </select>
                     </div>
 
@@ -609,7 +583,7 @@ export function BookingModal({
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Jane Doe (or your bank / PayPal name)"
+                        placeholder="e.g. Jane Doe (or name on payment account)"
                         value={zelleSenderInput}
                         onChange={(e) => setZelleSenderInput(e.target.value)}
                         className="w-full p-2.5 border border-[#E8DFD5] text-xs focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"

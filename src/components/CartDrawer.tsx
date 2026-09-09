@@ -52,8 +52,8 @@ export function CartDrawer() {
   const [verificationSubmitted, setVerificationSubmitted] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
-    "Zelle" | "PayPal" | "Apple Pay" | "Cash App / Venmo"
-  >("Zelle");
+    "Cash App" | "Zelle" | "Apple Pay"
+  >("Cash App");
 
   if (!isOpen) return null;
 
@@ -481,8 +481,8 @@ export function CartDrawer() {
                   </p>
 
                   {/* Payment Channel Selector Tabs */}
-                  <div className="grid grid-cols-2 gap-1 pt-0.5">
-                    {(["Zelle", "PayPal", "Apple Pay", "Cash App / Venmo"] as const).map((method) => (
+                  <div className="grid grid-cols-3 gap-1 pt-0.5">
+                    {(["Cash App", "Zelle", "Apple Pay"] as const).map((method) => (
                       <button
                         key={method}
                         type="button"
@@ -502,29 +502,16 @@ export function CartDrawer() {
                   <div className="bg-white p-3 border border-[#E8DFD5] space-y-1 text-[11px]">
                     <p><span className="text-[#6B5B56]">Recipient:</span> <strong className="text-[#4E141B]">Awa Diongue</strong></p>
 
-                    {selectedPaymentMethod === "Zelle" && (
-                      <>
-                        <p><span className="text-[#6B5B56]">Zelle Phone:</span> <strong className="font-mono text-[#4E141B]">+1 (773) 269-7505</strong></p>
-                        <p><span className="text-[#6B5B56]">Zelle Email:</span> <strong className="text-[#4E141B]">Maevausa@outlook.com</strong></p>
-                      </>
+                    {selectedPaymentMethod === "Cash App" && (
+                      <p><span className="text-[#6B5B56]">Cash App Phone:</span> <strong className="font-mono text-[#4E141B]">+1 (773) 269-7505</strong></p>
                     )}
 
-                    {selectedPaymentMethod === "PayPal" && (
-                      <>
-                        <p><span className="text-[#6B5B56]">PayPal Email:</span> <strong className="text-[#4E141B]">Maevausa@outlook.com</strong></p>
-                        <p><span className="text-[#6B5B56]">PayPal Phone:</span> <strong className="font-mono text-[#4E141B]">+1 (773) 269-7505</strong></p>
-                      </>
+                    {selectedPaymentMethod === "Zelle" && (
+                      <p><span className="text-[#6B5B56]">Zelle Phone:</span> <strong className="font-mono text-[#4E141B]">+1 (773) 269-7505</strong></p>
                     )}
 
                     {selectedPaymentMethod === "Apple Pay" && (
                       <p><span className="text-[#6B5B56]">Apple Pay Phone:</span> <strong className="font-mono text-[#4E141B]">+1 (773) 269-7505</strong></p>
-                    )}
-
-                    {selectedPaymentMethod === "Cash App / Venmo" && (
-                      <>
-                        <p><span className="text-[#6B5B56]">Cash App Phone:</span> <strong className="font-mono text-[#4E141B]">+1 (773) 269-7505</strong></p>
-                        <p><span className="text-[#6B5B56]">Cash App Email:</span> <strong className="text-[#4E141B]">Maevausa@outlook.com</strong></p>
-                      </>
                     )}
 
                     <p><span className="text-[#6B5B56]">Memo:</span> <strong className="font-mono text-[#4E141B]">{createdBooking?.paymentReference} - {clientName}</strong></p>
@@ -553,10 +540,9 @@ export function CartDrawer() {
                           onChange={(e) => setSelectedPaymentMethod(e.target.value as any)}
                           className="w-full p-1.5 border border-[#E8DFD5] text-xs bg-white text-[#2B1E1E]"
                         >
-                          <option value="Cash App / Venmo">Cash App (Phone / Email Search)</option>
+                          <option value="Cash App">Cash App (+1 773-269-7505)</option>
+                          <option value="Zelle">Zelle (+1 773-269-7505)</option>
                           <option value="Apple Pay">Apple Pay (+1 773-269-7505)</option>
-                          <option value="Zelle">Zelle (+1 773-269-7505 / Maevausa@outlook.com)</option>
-                          <option value="PayPal">PayPal (Maevausa@outlook.com)</option>
                         </select>
                       </div>
 
@@ -567,7 +553,7 @@ export function CartDrawer() {
                         <input
                           type="text"
                           required
-                          placeholder="e.g. Jane Doe (or your bank / account name)"
+                          placeholder="e.g. Jane Doe (or name on payment account)"
                           value={zelleSenderInput}
                           onChange={(e) => setZelleSenderInput(e.target.value)}
                           className="w-full p-2 border border-[#E8DFD5] text-xs bg-white text-[#2B1E1E]"

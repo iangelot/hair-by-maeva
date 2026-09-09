@@ -87,15 +87,15 @@ const defaultPaymentSettings: PaymentSettings = {
   zelleRecipientName: "Awa Diongue",
   zelleEmail: "Maevausa@outlook.com",
   zellePhone: "+1 (773) 269-7505",
-  zelleIdentifier: "+1 (773) 269-7505 or Maevausa@outlook.com (Awa Diongue)",
-  paypalEmail: "Maevausa@outlook.com",
+  zelleIdentifier: "+1 (773) 269-7505 (Awa Diongue)",
+  paypalEmail: "",
   paypalPhone: "+1 (773) 269-7505",
   applePayNumber: "+1 (773) 269-7505",
-  cashAppCashtag: "+1 (773) 269-7505 / Maevausa@outlook.com",
-  venmoHandle: "Awa Diongue / +1 (773) 269-7505",
+  cashAppCashtag: "+1 (773) 269-7505 (Awa Diongue)",
+  venmoHandle: "",
   squareBookingLink: "",
   stripePaymentLink: "",
-  instructions: "Deposits are $20 and are strictly non-refundable. Send $20 deposit via Cash App, Apple Pay, Zelle, or PayPal to Awa Diongue using phone +1 (773) 269-7505 or email Maevausa@outlook.com. Remaining balance is CASH ONLY at appointment!",
+  instructions: "Deposits are $20 and are strictly non-refundable. Send $20 deposit via Cash App, Zelle, or Apple Pay to Awa Diongue using phone +1 (773) 269-7505. Remaining balance is CASH ONLY at appointment!",
 };
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -187,15 +187,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("beas_admin_hero_images_v5", JSON.stringify(initialSiteConfig.heroImages));
       }
 
-      const savedPayment = localStorage.getItem("beas_admin_payment_settings_v6");
+      const savedPayment = localStorage.getItem("beas_admin_payment_settings_v7");
       if (savedPayment) {
         setPaymentSettings(JSON.parse(savedPayment));
       } else {
         setPaymentSettings(defaultPaymentSettings);
-        localStorage.setItem("beas_admin_payment_settings_v6", JSON.stringify(defaultPaymentSettings));
+        localStorage.setItem("beas_admin_payment_settings_v7", JSON.stringify(defaultPaymentSettings));
       }
 
-      const savedInfo = localStorage.getItem("beas_admin_salon_info_v6");
+      const savedInfo = localStorage.getItem("beas_admin_salon_info_v7");
       if (savedInfo) {
         setSalonInfo(JSON.parse(savedInfo));
       } else {
@@ -207,7 +207,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           notice: initialSiteConfig.notice,
         };
         setSalonInfo(freshInfo);
-        localStorage.setItem("beas_admin_salon_info_v6", JSON.stringify(freshInfo));
+        localStorage.setItem("beas_admin_salon_info_v7", JSON.stringify(freshInfo));
       }
     } catch {
       // Storage unavailable or parsing error
@@ -235,13 +235,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem("beas_admin_payment_settings_v6", JSON.stringify(paymentSettings));
+      localStorage.setItem("beas_admin_payment_settings_v7", JSON.stringify(paymentSettings));
     } catch {}
   }, [paymentSettings]);
 
   useEffect(() => {
     try {
-      localStorage.setItem("beas_admin_salon_info_v6", JSON.stringify(salonInfo));
+      localStorage.setItem("beas_admin_salon_info_v7", JSON.stringify(salonInfo));
     } catch {}
   }, [salonInfo]);
 
