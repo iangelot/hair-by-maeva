@@ -1,10 +1,11 @@
 "use client";
 
 import React from "react";
-import { siteConfig } from "@/data/siteConfig";
+import { useStore } from "@/context/StoreContext";
 import { CheckCircle, ShieldCheck, Scissors } from "lucide-react";
 
 export function PolicySection() {
+  const { policies } = useStore();
   const icons = [ShieldCheck, Scissors, CheckCircle];
 
   return (
@@ -27,7 +28,7 @@ export function PolicySection() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-          {siteConfig.policies.map((policy, idx) => {
+          {policies.map((policy, idx) => {
             const Icon = icons[idx % icons.length];
             return (
               <div

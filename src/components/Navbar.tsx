@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ShoppingBag, Menu, X, Calendar } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { siteConfig } from "@/data/siteConfig";
+import { useStore } from "@/context/StoreContext";
 
 interface NavbarProps {
   onOpenBooking: () => void;
@@ -12,6 +12,7 @@ interface NavbarProps {
 
 export function Navbar({ onOpenBooking }: NavbarProps) {
   const { itemCount, openCart } = useCart();
+  const { salonInfo } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -32,7 +33,7 @@ export function Navbar({ onOpenBooking }: NavbarProps) {
               href="/"
               className="text-xl sm:text-2xl lg:text-3xl font-serif tracking-tight text-[#4E141B] hover:opacity-90 transition-opacity flex items-center gap-1.5"
             >
-              <span>{siteConfig.name}</span>
+              <span>{salonInfo.name}</span>
             </Link>
           </div>
 

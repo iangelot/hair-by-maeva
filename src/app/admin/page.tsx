@@ -47,6 +47,8 @@ export default function AdminPage() {
     updatePaymentSettings,
     salonInfo,
     updateSalonInfo,
+    policies,
+    updatePolicies,
     resetToDefaults,
   } = useStore();
 
@@ -81,9 +83,9 @@ export default function AdminPage() {
     } catch {}
   }, []);
 
-  // Tabs: 'services' | 'bookings' | 'gallery' | 'payments'
+  // Tabs: 'services' | 'bookings' | 'gallery' | 'payments' | 'policies'
   const [activeTab, setActiveTab] = useState<
-    "services" | "bookings" | "gallery" | "payments"
+    "services" | "bookings" | "gallery" | "payments" | "policies"
   >("services");
 
   // Add / Edit Service Modal State
@@ -386,6 +388,18 @@ export default function AdminPage() {
           >
             <DollarSign className="w-4 h-4" />
             <span>US Payments & Salon Settings</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("policies")}
+            className={`flex items-center gap-2 px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 rounded-none transition-all whitespace-nowrap ${
+              activeTab === "policies"
+                ? "border-[#4E141B] text-[#4E141B] bg-[#F5EFE6]"
+                : "border-transparent text-[#6B5B56] hover:text-[#4E141B]"
+            }`}
+          >
+            <AlertCircle className="w-4 h-4 text-[#C5A059]" />
+            <span>Policies & Guidelines</span>
           </button>
         </div>
 
@@ -998,6 +1012,137 @@ export default function AdminPage() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: POLICIES & GUIDELINES */}
+        {activeTab === "policies" && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-serif font-medium text-neutral-900">
+                  Salon Policies & Guidelines
+                </h2>
+                <p className="text-xs text-neutral-500 mt-1">
+                  Edit the policy cards displayed on the website. Changes update live on the homepage immediately.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  const updated = [
+                    ...policies,
+                    { title: "New Policy", items: ["Add your first policy point here"] },
+                  ];
+                  updatePolicies(updated);
+                }}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#212121] text-white text-xs uppercase tracking-widest font-semibold hover:bg-black rounded-none transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add Policy Section
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {policies.map((policy, policyIdx) => (
+                <div
+                  key={policyIdx}
+                  className="bg-white border border-[#E8DFD5] p-6 space-y-4 shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-[#4E141B] mb-1">
+                        Policy Section Title
+                      </label>
+                      <input
+                        type="text"
+                        value={policy.title}
+                        onChange={(e) => {
+                          const updated = policies.map((p, i) =>
+                            i === policyIdx ? { ...p, title: e.target.value } : p
+                          );
+                          updatePolicies(updated);
+                        }}
+                        className="w-full p-2.5 border border-[#E8DFD5] text-sm font-serif font-medium text-[#4E141B] focus:outline-none focus:border-[#4E141B] rounded-none bg-white"
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Delete the entire "${policy.title}" policy section?`)) {
+                          const updated = policies.filter((_, i) => i !== policyIdx);
+                          updatePolicies(updated);
+                        }
+                      }}
+                      className="p-2 text-[#6B5B56] hover:text-red-600 hover:bg-red-50 rounded-none transition-colors mt-6"
+                      title="Delete policy section"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-[#6B5B56]">
+                        Policy Items ({policy.items.length})
+                      </label>
+                      <button
+                        onClick={() => {
+                          const updated = policies.map((p, i) =>
+                            i === policyIdx
+                              ? { ...p, items: [...p.items, "New policy item"] }
+                              : p
+                          );
+                          updatePolicies(updated);
+                        }}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#4E141B] hover:text-[#C5A059] bg-[#FAF7F2] border border-[#C5A059] px-2 py-1"
+                      >
+                        <Plus className="w-3 h-3 text-[#C5A059]" />
+                        Add Item
+                      </button>
+                    </div>
+
+                    {policy.items.map((item, itemIdx) => (
+                      <div key={itemIdx} className="flex items-start gap-2">
+                        <span className="text-xs text-[#C5A059] font-bold mt-2.5 w-5 text-right flex-shrink-0">
+                          {itemIdx + 1}.
+                        </span>
+                        <textarea
+                          rows={2}
+                          value={item}
+                          onChange={(e) => {
+                            const updated = policies.map((p, i) =>
+                              i === policyIdx
+                                ? {
+                                    ...p,
+                                    items: p.items.map((it, j) =>
+                                      j === itemIdx ? e.target.value : it
+                                    ),
+                                  }
+                                : p
+                            );
+                            updatePolicies(updated);
+                          }}
+                          className="flex-1 p-2.5 border border-[#E8DFD5] text-xs text-[#2B1E1E] focus:outline-none focus:border-[#4E141B] rounded-none bg-white leading-relaxed resize-none"
+                        />
+                        <button
+                          onClick={() => {
+                            const updated = policies.map((p, i) =>
+                              i === policyIdx
+                                ? { ...p, items: p.items.filter((_, j) => j !== itemIdx) }
+                                : p
+                            );
+                            updatePolicies(updated);
+                          }}
+                          className="p-1.5 text-neutral-400 hover:text-red-600 transition-colors mt-1"
+                          title="Remove item"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

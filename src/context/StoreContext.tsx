@@ -76,6 +76,10 @@ interface StoreContextType {
   };
   updateSalonInfo: (info: Partial<StoreContextType["salonInfo"]>) => void;
 
+  // Policies
+  policies: SiteConfig["policies"];
+  updatePolicies: (policies: SiteConfig["policies"]) => void;
+
   // Reset to defaults
   resetToDefaults: () => void;
 }
@@ -112,6 +116,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     location: initialSiteConfig.location,
     notice: initialSiteConfig.notice,
   });
+  const [policies, setPolicies] = useState(initialSiteConfig.policies);
 
   // Load state from localStorage on mount
   useEffect(() => {
@@ -209,6 +214,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setSalonInfo(freshInfo);
         localStorage.setItem("beas_admin_salon_info_v7", JSON.stringify(freshInfo));
       }
+
+      const savedPolicies = localStorage.getItem("beas_admin_policies_v1");
+      if (savedPolicies) {
+        setPolicies(JSON.parse(savedPolicies));
+      } else {
+        setPolicies(initialSiteConfig.policies);
+        localStorage.setItem("beas_admin_policies_v1", JSON.stringify(initialSiteConfig.policies));
+      }
     } catch {
       // Storage unavailable or parsing error
     }
@@ -244,6 +257,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("beas_admin_salon_info_v7", JSON.stringify(salonInfo));
     } catch {}
   }, [salonInfo]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("beas_admin_policies_v1", JSON.stringify(policies));
+    } catch {}
+  }, [policies]);
 
   // Actions
   const addService = (newService: Omit<ServiceItem, "id">) => {
@@ -349,6 +368,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setSalonInfo((prev) => ({ ...prev, ...info }));
   };
 
+  const updatePolicies = (newPolicies: SiteConfig["policies"]) => {
+    setPolicies(newPolicies);
+  };
+
   const resetToDefaults = () => {
     if (confirm("Reset all services and settings back to original defaults?")) {
       setServices(initialServices);
@@ -361,6 +384,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         location: initialSiteConfig.location,
         notice: initialSiteConfig.notice,
       });
+      setPolicies(initialSiteConfig.policies);
       localStorage.clear();
     }
   };
@@ -384,6 +408,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         updatePaymentSettings,
         salonInfo,
         updateSalonInfo,
+        policies,
+        updatePolicies,
         resetToDefaults,
       }}
     >
