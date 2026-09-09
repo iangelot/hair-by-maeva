@@ -500,8 +500,8 @@ export function CartDrawer() {
 
                     {selectedPaymentMethod === "Cash App / Venmo" && (
                       <>
-                        <p><span className="text-[#6B5B56]">Cash App Cashtag:</span> <strong className="font-mono text-[#4E141B]">$BANDSOFTHAIR</strong></p>
-                        <p><span className="text-[#6B5B56]">Venmo / Contact:</span> <strong className="font-mono text-[#4E141B]">(682) 454-1530</strong></p>
+                        <p><span className="text-[#6B5B56]">Cash App Phone:</span> <strong className="font-mono text-[#4E141B]">(773) 269-7505</strong></p>
+                        <p><span className="text-[#6B5B56]">Cash App Email:</span> <strong className="text-[#4E141B]">Maevausa@outlook.com</strong></p>
                       </>
                     )}
 
@@ -531,8 +531,8 @@ export function CartDrawer() {
                           onChange={(e) => setSelectedPaymentMethod(e.target.value as any)}
                           className="w-full p-1.5 border border-[#E8DFD5] text-xs bg-white text-[#2B1E1E]"
                         >
-                          <option value="Cash App / Venmo">Cash App ($BANDSOFTHAIR)</option>
-                          <option value="Apple Pay">Apple Pay (682-454-1530)</option>
+                          <option value="Cash App / Venmo">Cash App (Phone / Email Search)</option>
+                          <option value="Apple Pay">Apple Pay (682-454-1530 / 773-269-7505)</option>
                           <option value="Zelle">Zelle (773-269-7505 / Maevausa@outlook.com)</option>
                           <option value="PayPal">PayPal (Maevausa@outlook.com)</option>
                         </select>

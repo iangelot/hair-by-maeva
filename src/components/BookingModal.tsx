@@ -515,12 +515,12 @@ export function BookingModal({
                   {selectedPaymentMethod === "Cash App / Venmo" && (
                     <>
                       <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                        <span className="text-[#6B5B56]">Cash App Cashtag:</span>
-                        <strong className="text-[#4E141B] font-mono font-semibold">$BANDSOFTHAIR</strong>
+                        <span className="text-[#6B5B56]">Cash App Phone:</span>
+                        <strong className="text-[#4E141B] font-mono font-semibold">(773) 269-7505</strong>
                       </div>
                       <div className="flex justify-between items-center py-0.5 border-b border-neutral-100">
-                        <span className="text-[#6B5B56]">Venmo / Contact:</span>
-                        <strong className="text-[#4E141B] font-mono font-semibold">(682) 454-1530</strong>
+                        <span className="text-[#6B5B56]">Cash App Email:</span>
+                        <strong className="text-[#4E141B] font-semibold">Maevausa@outlook.com</strong>
                       </div>
                     </>
                   )}
@@ -573,8 +573,8 @@ export function BookingModal({
                         onChange={(e) => setSelectedPaymentMethod(e.target.value as any)}
                         className="w-full p-2.5 border border-[#E8DFD5] text-xs focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
                       >
-                        <option value="Cash App / Venmo">Cash App ($BANDSOFTHAIR)</option>
-                        <option value="Apple Pay">Apple Pay (682-454-1530)</option>
+                        <option value="Cash App / Venmo">Cash App (Phone / Email Search)</option>
+                        <option value="Apple Pay">Apple Pay (682-454-1530 / 773-269-7505)</option>
                         <option value="Zelle">Zelle (773-269-7505 / Maevausa@outlook.com)</option>
                         <option value="PayPal">PayPal (Maevausa@outlook.com)</option>
                       </select>

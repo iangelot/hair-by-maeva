@@ -33,13 +33,13 @@ export const siteConfig: SiteConfig = {
   squareBookingUrl: "",
   squareMerchantId: "",
   squareSellerKey: "",
-  notice: "Please read all policies prior to booking. A $20 deposit is required to book (strictly non-refundable). Cash App: $BANDSOFTHAIR | Apple Pay / Text: (682) 454-1530 | Remaining balance in cash only.",
+  notice: "Please read all policies prior to booking. A $20 deposit is required to book (strictly non-refundable). Deposits accepted via Cash App, Apple Pay, Zelle, or PayPal using phone (773) 269-7505 / (682) 454-1530 or email Maevausa@outlook.com. Remaining balance in cash only.",
   policies: [
     {
       title: "Deposit & Payment Policy",
       items: [
         "Deposits are $20 and are non-refundable. A deposit is required to hold your slot.",
-        "Accepted deposit methods: Cash App ($BANDSOFTHAIR), Apple Pay (682-454-1530), Zelle, or PayPal.",
+        "Accepted deposit methods: Cash App, Apple Pay, Zelle, or PayPal using phone (773) 269-7505 / (682) 454-1530 or email Maevausa@outlook.com (Awa Diongue).",
         "Please send deposit within 30 minutes after booking or appointment will be cancelled!",
         "Remaining balance is to be paid in CASH ONLY. Other forms of payment will not be accepted for final payment!",
       ],
