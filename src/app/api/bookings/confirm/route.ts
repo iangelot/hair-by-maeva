@@ -7,13 +7,15 @@ const resendApiKey = process.env.RESEND_API_KEY || "";
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const salonNotificationEmail = (process.env.SALON_NOTIFICATION_EMAIL || "maevausa@outlook.com").toLowerCase().trim();
 
-// Gmail / Custom SMTP credentials (free zero-domain delivery)
-const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER || "";
-const smtpPass = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS || "";
-
 export async function POST(req: Request) {
   try {
     const booking = await req.json();
+
+    const smtpUser = (process.env.GMAIL_USER || process.env.SMTP_USER || "").trim();
+    const rawSmtpPass = (process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS || "").trim();
+    const smtpPass = rawSmtpPass.replace(/\s+/g, ""); // Strip any spaces from Google App Password
+    const resendApiKey = (process.env.RESEND_API_KEY || "").trim();
+    const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
     if (!booking.id || !booking.clientName) {
       return NextResponse.json(
@@ -131,6 +133,7 @@ export async function POST(req: Request) {
 
     let emailSent = false;
     let dispatchMethod = "none";
+    let dispatchError = "";
 
     // Method 1: Free Gmail / SMTP Transport (Zero domain requirement)
     if (smtpUser && smtpPass) {
@@ -153,9 +156,12 @@ export async function POST(req: Request) {
 
         emailSent = true;
         dispatchMethod = "smtp_gmail";
-      } catch (smtpErr) {
+      } catch (smtpErr: any) {
+        dispatchError = smtpErr?.message || String(smtpErr);
         console.warn("Gmail SMTP confirmation dispatch failed:", smtpErr);
       }
+    } else if (!smtpUser || !smtpPass) {
+      dispatchError = "GMAIL_USER or GMAIL_APP_PASSWORD environment variable is not configured";
     }
 
     // Method 2: Resend API Dispatch
@@ -174,9 +180,11 @@ export async function POST(req: Request) {
           emailSent = true;
           dispatchMethod = "resend";
         } else if (resendRes.error) {
+          dispatchError += ` | Resend error: ${resendRes.error.message}`;
           console.warn("Resend client confirmation dispatch error:", resendRes.error);
         }
-      } catch (resendErr) {
+      } catch (resendErr: any) {
+        dispatchError += ` | Resend catch: ${resendErr?.message || String(resendErr)}`;
         console.warn("Resend client confirmation error:", resendErr);
       }
     }
@@ -187,6 +195,8 @@ export async function POST(req: Request) {
       emailSent,
       dispatchMethod,
       recipient: recipientEmail,
+      smtpConfigured: Boolean(smtpUser && smtpPass),
+      dispatchError: emailSent ? undefined : dispatchError,
     });
   } catch (error) {
     console.error("Booking confirmation API error:", error);
