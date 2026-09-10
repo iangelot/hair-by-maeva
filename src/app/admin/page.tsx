@@ -119,6 +119,30 @@ export default function AdminPage() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageUrlInput, setImageUrlInput] = useState("");
   const [imageTitleInput, setImageTitleInput] = useState("");
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+
+  const handleConfirmAndNotifyClient = async (booking: BookingRecord) => {
+    setConfirmingId(booking.id);
+    updateBookingStatus(booking.id, "confirmed");
+
+    try {
+      const res = await fetch("/api/bookings/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(booking),
+      });
+      const data = await res.json();
+      if (data.emailSent) {
+        alert(`✅ Deposit verified! Confirmation email has been sent to ${booking.clientName} (${booking.clientEmail}).`);
+      } else {
+        alert(`✅ Deposit verified! Booking for ${booking.clientName} is now Confirmed.`);
+      }
+    } catch {
+      alert(`✅ Deposit verified! Booking for ${booking.clientName} is now Confirmed.`);
+    } finally {
+      setConfirmingId(null);
+    }
+  };
 
   // Passkey unlock with session storage
   const handleLogin = (e: React.FormEvent) => {
@@ -804,14 +828,38 @@ export default function AdminPage() {
                         </a>
                       </div>
 
+                      {/* 1-Tap Pre-formatted SMS & Email for Client */}
+                      <a
+                        href={`sms:${booking.clientPhone.replace(/[^\d+]/g, "")}?&body=${encodeURIComponent(
+                          `Hi ${booking.clientName}! This is Maeva from Hair By Maeva. Your appointment for ${booking.serviceName}${booking.selectedLength ? ` (${booking.selectedLength})` : ""} on ${booking.appointmentDate} at ${booking.appointmentTime} is confirmed! Deposit of $${booking.depositAmount || 20} received. Location: 1941 W Huron St, Chicago, IL 60622. Remaining balance: $${Math.max(0, booking.totalPrice - (booking.depositAmount || 20))} (Cash only). Hair must be washed & blown out. See you then! ✨`
+                        )}`}
+                        className="px-2.5 py-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 transition-colors flex items-center gap-1"
+                        title="Open native Messages app with ready-to-send confirmation text"
+                      >
+                        💬 Text SMS
+                      </a>
+
+                      {booking.clientEmail && (
+                        <a
+                          href={`mailto:${booking.clientEmail}?subject=${encodeURIComponent(
+                            `Appointment Confirmed: ${booking.serviceName} - Hair By Maeva`
+                          )}&body=${encodeURIComponent(
+                            `Hi ${booking.clientName},\n\nYour appointment with Hair By Maeva is officially confirmed!\n\nService: ${booking.serviceName}${booking.selectedLength ? ` (${booking.selectedLength})` : ""}\nDate: ${booking.appointmentDate}\nTime: ${booking.appointmentTime}\nSalon Address: 1941 West Huron Street, Chicago, IL 60622\nDeposit Verified: $${booking.depositAmount || 20}\nRemaining Balance Due: $${Math.max(0, booking.totalPrice - (booking.depositAmount || 20))} (Cash only at appointment)\n\nPlease arrive with hair washed, detangled, and blown out straight.\n\nThank you,\nMaeva\n+1 (773) 269-7505`
+                          )}`}
+                          className="px-2.5 py-1 text-[11px] font-semibold text-[#4E141B] bg-[#FAF7F2] border border-[#E8DFD5] hover:bg-white transition-colors flex items-center gap-1"
+                          title="Open Mail app with ready-to-send confirmation email"
+                        >
+                          ✉️ Email Client
+                        </a>
+                      )}
+
                       {booking.status !== "confirmed" && (
                         <button
-                          onClick={() =>
-                            updateBookingStatus(booking.id, "confirmed")
-                          }
-                          className="px-3 py-1.5 bg-emerald-700 text-white text-[11px] uppercase tracking-wider font-semibold hover:bg-emerald-800 rounded-none transition-colors"
+                          onClick={() => handleConfirmAndNotifyClient(booking)}
+                          disabled={confirmingId === booking.id}
+                          className="px-3 py-1.5 bg-emerald-700 text-white text-[11px] uppercase tracking-wider font-semibold hover:bg-emerald-800 rounded-none transition-colors disabled:opacity-50"
                         >
-                          Confirm Deposit
+                          {confirmingId === booking.id ? "Confirming..." : "✓ Confirm Deposit"}
                         </button>
                       )}
                       {booking.status !== "completed" && (
