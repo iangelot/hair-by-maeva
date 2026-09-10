@@ -8,12 +8,31 @@ import { Check } from "lucide-react";
 export function NewsletterFooter() {
   const { salonInfo, paymentSettings } = useStore();
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-    setSubscribed(true);
+    if (!email || !email.includes("@")) return;
+    setLoading(true);
+    try {
+      await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      setSubscribed(true);
+      try {
+        const localSubs = JSON.parse(localStorage.getItem("beas_subscribers") || "[]");
+        if (!localSubs.includes(email.trim().toLowerCase())) {
+          localStorage.setItem("beas_subscribers", JSON.stringify([email.trim().toLowerCase(), ...localSubs]));
+        }
+      } catch {}
+    } catch {
+      setSubscribed(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const paymentBadges = [
@@ -99,9 +118,10 @@ export function NewsletterFooter() {
                 />
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-[#C5A059] text-[#140608] hover:bg-[#D8B878] active:bg-[#B38D42] text-xs uppercase tracking-wider font-semibold transition-colors rounded-none touch-manipulation min-h-[44px]"
+                  disabled={loading}
+                  className="px-6 py-3 bg-[#C5A059] text-[#140608] hover:bg-[#D8B878] active:bg-[#B38D42] text-xs uppercase tracking-wider font-semibold transition-colors rounded-none touch-manipulation min-h-[44px] disabled:opacity-50"
                 >
-                  Sign Up
+                  {loading ? "Joining..." : "Sign Up"}
                 </button>
               </form>
             )}

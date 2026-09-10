@@ -30,6 +30,7 @@ import {
   Sparkles,
   Upload,
   MapPin,
+  Copy,
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -91,10 +92,41 @@ export default function AdminPage() {
     } catch {}
   }, []);
 
-  // Tabs: 'services' | 'bookings' | 'gallery' | 'payments' | 'policies'
+  // Tabs: 'services' | 'bookings' | 'gallery' | 'payments' | 'policies' | 'subscribers'
   const [activeTab, setActiveTab] = useState<
-    "services" | "bookings" | "gallery" | "payments" | "policies"
+    "services" | "bookings" | "gallery" | "payments" | "policies" | "subscribers"
   >("services");
+
+  // VIP Subscribers State
+  const [subscribers, setSubscribers] = useState<string[]>([]);
+  const [copiedSubs, setCopiedSubs] = useState(false);
+  const [loadingSubs, setLoadingSubs] = useState(false);
+
+  const fetchSubscribers = async () => {
+    setLoadingSubs(true);
+    try {
+      const res = await fetch("/api/newsletter");
+      const data = await res.json();
+      if (Array.isArray(data.subscribers) && data.subscribers.length > 0) {
+        setSubscribers(data.subscribers);
+      } else {
+        const local = JSON.parse(localStorage.getItem("beas_subscribers") || "[]");
+        setSubscribers(local);
+      }
+    } catch {
+      const local = JSON.parse(localStorage.getItem("beas_subscribers") || "[]");
+      setSubscribers(local);
+    } finally {
+      setLoadingSubs(false);
+    }
+  };
+
+  const handleCopyAllSubscribers = () => {
+    if (subscribers.length === 0) return;
+    navigator.clipboard.writeText(subscribers.join(", "));
+    setCopiedSubs(true);
+    setTimeout(() => setCopiedSubs(false), 2000);
+  };
 
   // Add / Edit Service Modal State
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
@@ -482,6 +514,21 @@ export default function AdminPage() {
           >
             <AlertCircle className="w-4 h-4 text-[#C5A059]" />
             <span>Policies & Guidelines</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab("subscribers");
+              fetchSubscribers();
+            }}
+            className={`flex items-center gap-2 px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 rounded-none transition-all whitespace-nowrap ${
+              activeTab === "subscribers"
+                ? "border-[#4E141B] text-[#4E141B] bg-[#F5EFE6]"
+                : "border-transparent text-[#6B5B56] hover:text-[#4E141B]"
+            }`}
+          >
+            <Mail className="w-4 h-4 text-[#C5A059]" />
+            <span>VIP Subscribers ({subscribers.length})</span>
           </button>
         </div>
 
@@ -1256,6 +1303,80 @@ export default function AdminPage() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* TAB 6: VIP SUBSCRIBERS */}
+        {activeTab === "subscribers" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 border border-[#E8DFD5] shadow-sm">
+              <div>
+                <h2 className="text-xl font-serif font-medium text-[#4E141B] flex items-center gap-2">
+                  <span>VIP Newsletter Subscribers</span>
+                  <span className="text-xs bg-[#FAF7F2] text-[#C5A059] border border-[#C5A059] px-2.5 py-0.5 font-sans font-bold">
+                    {subscribers.length} Contacts
+                  </span>
+                </h2>
+                <p className="text-xs text-[#6B5B56] mt-1">
+                  Clients who signed up via the website footer to receive announcements, newly opened slots, and holiday specials.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCopyAllSubscribers}
+                  disabled={subscribers.length === 0}
+                  className="px-4 py-2.5 bg-[#4E141B] text-[#FAF7F2] hover:bg-[#3A0E14] text-xs uppercase tracking-wider font-semibold transition-colors flex items-center gap-2 disabled:opacity-40"
+                >
+                  {copiedSubs ? <Check className="w-4 h-4 text-[#C5A059]" /> : <Copy className="w-4 h-4 text-[#C5A059]" />}
+                  <span>{copiedSubs ? "Copied All!" : "Copy All Emails"}</span>
+                </button>
+                <button
+                  onClick={fetchSubscribers}
+                  disabled={loadingSubs}
+                  className="px-3 py-2.5 bg-[#FAF7F2] border border-[#E8DFD5] text-[#4E141B] hover:bg-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                  title="Refresh subscriber list"
+                >
+                  <RotateCcw className={`w-3.5 h-3.5 ${loadingSubs ? "animate-spin" : ""}`} />
+                  <span>Refresh</span>
+                </button>
+              </div>
+            </div>
+
+            {subscribers.length === 0 ? (
+              <div className="bg-white p-12 text-center border border-[#E8DFD5]">
+                <Mail className="w-8 h-8 text-[#D6C7B8] mx-auto mb-3" />
+                <h3 className="text-sm font-serif font-medium text-[#4E141B]">No subscribers yet</h3>
+                <p className="text-xs text-[#6B5B56] max-w-sm mx-auto mt-1">
+                  When clients sign up on the footer form, their emails will appear right here automatically.
+                </p>
+              </div>
+            ) : (
+              <div className="bg-white border border-[#E8DFD5] shadow-sm overflow-hidden">
+                <div className="p-4 border-b border-[#E8DFD5] bg-[#FAF7F2] flex items-center justify-between text-xs font-semibold text-[#4E141B]">
+                  <span>Subscriber Email</span>
+                  <span>Quick Actions</span>
+                </div>
+                <div className="divide-y divide-[#E8DFD5]">
+                  {subscribers.map((subEmail, idx) => (
+                    <div key={idx} className="p-4 flex items-center justify-between gap-4 hover:bg-[#FAF7F2]/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-mono text-[#A69590] w-6">{idx + 1}.</span>
+                        <span className="text-sm font-medium text-[#2B1E1E]">{subEmail}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`mailto:${subEmail}?subject=Special Announcement from Hair By Maeva`}
+                          className="px-2.5 py-1 text-xs font-medium text-[#4E141B] bg-[#FAF7F2] border border-[#E8DFD5] hover:bg-white transition-colors"
+                        >
+                          ✉️ Send Email
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

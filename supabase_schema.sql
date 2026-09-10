@@ -110,3 +110,25 @@ create policy "Allow anonymous select on site_content"
 -- New tables are not always auto-exposed to the Data API, so grant explicitly
 grant select on public.site_content to anon, authenticated;
 grant select, insert, update, delete on public.site_content to service_role;
+
+-- 4. NEWSLETTER SUBSCRIBERS TABLE (VIP List)
+create table if not exists public.subscribers (
+  id uuid default gen_random_uuid() primary key,
+  email text unique not null,
+  created_at timestamp with time zone default now()
+);
+
+alter table public.subscribers enable row level security;
+
+drop policy if exists "Allow anonymous insert on subscribers" on public.subscribers;
+create policy "Allow anonymous insert on subscribers"
+  on public.subscribers for insert
+  with check (true);
+
+drop policy if exists "Allow anonymous select on subscribers" on public.subscribers;
+create policy "Allow anonymous select on subscribers"
+  on public.subscribers for select
+  using (true);
+
+grant select, insert on public.subscribers to anon, authenticated;
+grant select, insert, update, delete on public.subscribers to service_role;
