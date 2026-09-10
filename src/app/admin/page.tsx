@@ -108,7 +108,7 @@ export default function AdminPage() {
   }>({
     name: "",
     price: 200,
-    deposit: 50,
+    deposit: 20,
     notice: "",
     image: "",
     lengths: [],
@@ -159,7 +159,7 @@ export default function AdminPage() {
     setServiceFormData({
       name: "",
       price: 200,
-      deposit: 50,
+      deposit: 20,
       notice: "",
       image: "",
       lengths: [],
@@ -202,32 +202,77 @@ export default function AdminPage() {
     }));
   };
 
-  const handleServiceImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (typeof reader.result === "string") {
-        setServiceFormData((prev) => ({ ...prev, image: reader.result as string }));
-      }
-    };
-    reader.readAsDataURL(file);
+  const compressImageFile = (file: File, maxWidth = 800, quality = 0.82): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (readerEvent) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", quality));
+          } else {
+            resolve((readerEvent.target?.result as string) || "");
+          }
+        };
+        img.onerror = () => resolve((readerEvent.target?.result as string) || "");
+        img.src = (readerEvent.target?.result as string) || "";
+      };
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+    });
   };
 
-  const handlePosterImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleServiceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (typeof reader.result === "string") {
-        setImageUrlInput(reader.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImageFile(file, 800, 0.82);
+      setServiceFormData((prev) => ({ ...prev, image: compressed }));
+    } catch {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setServiceFormData((prev) => ({ ...prev, image: reader.result as string }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePosterImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const compressed = await compressImageFile(file, 1200, 0.85);
+      setImageUrlInput(compressed);
+    } catch {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setImageUrlInput(reader.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSaveService = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!serviceFormData.name.trim()) {
+      alert("Please enter a hairstyle name.");
+      return;
+    }
     if (editingServiceId) {
       updateService(editingServiceId, serviceFormData);
     } else {

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useStore } from "@/context/StoreContext";
-import { Mail, Phone, MapPin, Check } from "lucide-react";
+import { Check } from "lucide-react";
 
 export function NewsletterFooter() {
   const { salonInfo, paymentSettings } = useStore();
@@ -17,14 +17,10 @@ export function NewsletterFooter() {
   };
 
   const paymentBadges = [
-    "VISA",
-    "Mastercard",
-    "AMEX",
-    "Discover",
-    "Apple Pay",
-    "Google Pay",
     "Cash App",
-    "Square Pay",
+    "Zelle",
+    "Apple Pay",
+    "Cash Balance",
   ];
 
   return (
@@ -39,20 +35,6 @@ export function NewsletterFooter() {
             <p className="text-xs text-[#D6C7B8] max-w-sm leading-relaxed">
               Luxury Protective Braiding & Hair Care. Dedicated to master craftsmanship, neat tension-free parting, and preserving natural hair vitality.
             </p>
-            <div className="space-y-2 pt-2 text-xs text-[#D6C7B8]">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#C5A059]" />
-                <span>{salonInfo.location}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#C5A059]" />
-                <span>{salonInfo.phone}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#C5A059]" />
-                <span>{salonInfo.email}</span>
-              </div>
-            </div>
           </div>
 
           {/* Quick Links */}

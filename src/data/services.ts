@@ -20,7 +20,7 @@ export const servicesData: ServiceItem[] = [
     lengths: [
       { name: "Bob length", price: 220 },
       { name: "Mid back", price: 250 },
-      { name: "Waist", price: 300 },
+      { name: "Waist length", price: 300 },
       { name: "Butt length", price: 350 },
     ],
   },
@@ -46,7 +46,7 @@ export const servicesData: ServiceItem[] = [
     image: "/images/styles/medium-braids.jpg",
     notice: "Boho hair is not included",
     lengths: [
-      { name: "Bob", price: 180 },
+      { name: "Bob length", price: 180 },
       { name: "Mid back", price: 200 },
       { name: "Waist length", price: 230 },
       { name: "Butt length", price: 260 },
@@ -62,8 +62,8 @@ export const servicesData: ServiceItem[] = [
     lengths: [
       { name: "Bob length", price: 120 },
       { name: "Mid back", price: 150 },
-      { name: "Waist", price: 200 },
-      { name: "Butt", price: 220 },
+      { name: "Waist length", price: 200 },
+      { name: "Butt length", price: 220 },
     ],
   },
 
@@ -155,6 +155,10 @@ export const servicesData: ServiceItem[] = [
     price: 220,
     deposit: 20,
     image: "/images/styles/half-side-stitch.jpg",
+    lengths: [
+      { name: "Mid back", price: 220 },
+      { name: "Waist length", price: 260 },
+    ],
   },
   {
     id: "fulani-braids",
@@ -166,6 +170,7 @@ export const servicesData: ServiceItem[] = [
     lengths: [
       { name: "Regular braids", price: 200 },
       { name: "Stitch braid", price: 220 },
+      { name: "Waist length", price: 250 },
     ],
   },
   {
@@ -187,5 +192,9 @@ export const servicesData: ServiceItem[] = [
     deposit: 20,
     image: "/images/styles/micro-twist.jpg",
     notice: "Hair is not included",
+    lengths: [
+      { name: "Mid back", price: 300 },
+      { name: "Waist length", price: 350 },
+    ],
   },
 ];

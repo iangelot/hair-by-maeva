@@ -160,13 +160,28 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           if ((!updated.notice || updated.notice.trim() === "") && initial?.notice) {
             updated.notice = initial.notice;
           }
+          if (initial?.lengths && (!updated.lengths || updated.lengths.length === 0)) {
+            updated.lengths = initial.lengths;
+          }
           return updated;
         });
         setServices(merged);
         localStorage.setItem("beas_admin_services_v8", JSON.stringify(merged));
       } else {
-        setServices(initialServices);
-        localStorage.setItem("beas_admin_services_v8", JSON.stringify(initialServices));
+        // Check if there are user-created custom services in v7 to preserve
+        const oldV7 = localStorage.getItem("beas_admin_services_v7");
+        let initialWithCustom = [...initialServices];
+        if (oldV7) {
+          try {
+            const parsedOld: ServiceItem[] = JSON.parse(oldV7);
+            const customAdded = parsedOld.filter((s) => s.id.startsWith("service-"));
+            if (customAdded.length > 0) {
+              initialWithCustom = [...initialWithCustom, ...customAdded];
+            }
+          } catch {}
+        }
+        setServices(initialWithCustom);
+        localStorage.setItem("beas_admin_services_v8", JSON.stringify(initialWithCustom));
       }
 
       const savedBookings = localStorage.getItem("beas_admin_bookings");
