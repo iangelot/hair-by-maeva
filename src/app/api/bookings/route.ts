@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
-const resendApiKey = process.env.RESEND_API_KEY || "";
 const salonNotificationEmail = (process.env.SALON_NOTIFICATION_EMAIL || "maevausa@outlook.com").toLowerCase().trim();
-
-const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 export async function POST(req: Request) {
   try {
     const booking = await req.json();
+
+    const smtpUser = (process.env.GMAIL_USER || process.env.SMTP_USER || "").trim();
+    const rawSmtpPass = (process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS || "").trim();
+    const smtpPass = rawSmtpPass.replace(/\s+/g, "");
+    const resendApiKey = (process.env.RESEND_API_KEY || "").trim();
+    const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
     if (!booking.clientName || !booking.clientPhone || !booking.appointmentDate) {
       return NextResponse.json(
@@ -56,136 +60,147 @@ export async function POST(req: Request) {
       }
     }
 
-    // 2. Dispatch Email to Awa Diongue (Maevausa@outlook.com) via Resend
+    // 2. Dispatch Email Notification to Maeva (maevausa@outlook.com)
     let emailSent = false;
-    if (resend) {
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #FAF7F2; border: 1px solid #E8DFD5; padding: 24px; color: #2B1E1E;">
+        <div style="background-color: #4E141B; padding: 18px; text-align: center;">
+          <h1 style="color: #FAF7F2; margin: 0; font-size: 20px; font-weight: normal; letter-spacing: 2px;">HAIR BY MAEVA</h1>
+          <p style="color: #C5A059; margin: 4px 0 0 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;">New Client Appointment Request</p>
+        </div>
+
+        <div style="background-color: #ffffff; padding: 20px; border: 1px solid #E8DFD5; margin-top: 16px;">
+          <h2 style="color: #4E141B; margin: 0 0 12px 0; font-size: 17px;">Appointment Summary</h2>
+          <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 6px 0; color: #6B5B56; width: 40%;">Client Name:</td>
+              <td style="padding: 6px 0; font-weight: bold; color: #4E141B;">${booking.clientName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #6B5B56;">Client Phone:</td>
+              <td style="padding: 6px 0; font-weight: bold;"><a href="tel:${booking.clientPhone}" style="color: #4E141B; text-decoration: underline;">${booking.clientPhone}</a></td>
+            </tr>
+            ${booking.clientLocation ? `
+            <tr>
+              <td style="padding: 6px 0; color: #6B5B56;">Client Location:</td>
+              <td style="padding: 6px 0; font-weight: bold; color: #4E141B;">${booking.clientLocation}</td>
+            </tr>
+            ` : ""}
+            ${booking.clientEmail ? `
+            <tr>
+              <td style="padding: 6px 0; color: #6B5B56;">Client Email:</td>
+              <td style="padding: 6px 0;"><a href="mailto:${booking.clientEmail}" style="color: #4E141B;">${booking.clientEmail}</a></td>
+            </tr>
+            ` : ""}
+            <tr>
+              <td style="padding: 6px 0; color: #6B5B56;">Hairstyle:</td>
+              <td style="padding: 6px 0; font-weight: bold; color: #4E141B;">${booking.serviceName}</td>
+            </tr>
+            ${booking.selectedLength ? `
+            <tr>
+              <td style="padding: 6px 0; color: #6B5B56;">Length Tier:</td>
+              <td style="padding: 6px 0;">${booking.selectedLength}</td>
+            </tr>
+            ` : ""}
+            <tr>
+              <td style="padding: 6px 0; color: #6B5B56;">Date:</td>
+              <td style="padding: 6px 0; font-weight: bold; color: #4E141B;">${booking.appointmentDate}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #6B5B56;">Time Slot:</td>
+              <td style="padding: 6px 0; font-weight: bold; color: #4E141B;">${booking.appointmentTime}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #6B5B56;">Total Estimated Price:</td>
+              <td style="padding: 6px 0; font-weight: bold;">$${booking.totalPrice}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #6B5B56;">Deposit Required:</td>
+              <td style="padding: 6px 0; font-weight: bold; color: #C5A059; font-size: 15px;">$${booking.depositAmount}</td>
+            </tr>
+            ${booking.notes ? `
+            <tr>
+              <td style="padding: 6px 0; color: #6B5B56;">Notes / Hair Specs:</td>
+              <td style="padding: 6px 0; font-style: italic;">${booking.notes}</td>
+            </tr>
+            ` : ""}
+          </table>
+        </div>
+
+        <div style="background-color: #FAF7F2; border: 1px solid #C5A059; padding: 16px; margin-top: 16px;">
+          <h3 style="color: #4E141B; margin: 0 0 8px 0; font-size: 14px;">Deposit & Payment Verification</h3>
+          <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
+            <strong>Unique Booking Reference:</strong> <span style="font-family: monospace; font-size: 14px; color: #4E141B;">${booking.paymentReference || "N/A"}</span>
+          </p>
+          ${booking.paymentMethod ? `
+          <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
+            <strong>Payment Channel Selected:</strong> <span style="font-weight: bold; color: #4E141B; background: #FAF7F2; border: 1px solid #C5A059; padding: 2px 6px;">${booking.paymentMethod}</span>
+          </p>
+          ` : ""}
+          ${booking.zelleSenderName ? `
+          <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
+            <strong>Sender Account Name:</strong> <span style="font-weight: bold; color: #4E141B;">${booking.zelleSenderName}</span>
+          </p>
+          ` : `
+          <p style="font-size: 11px; margin: 4px 0; color: #6B5B56; font-style: italic;">
+            Client has not yet submitted their payment account name.
+          </p>
+          `}
+          ${booking.zelleMemo ? `
+          <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
+            <strong>Client Memo / Note:</strong> ${booking.zelleMemo}
+          </p>
+          ` : ""}
+        </div>
+
+        <div style="margin-top: 20px; font-size: 11px; color: #6B5B56; text-align: center; border-top: 1px solid #E8DFD5; padding-top: 14px;">
+          <p style="margin: 2px 0;">Hair By Maeva • 1941 West Huron Street, Chicago, Illinois 60622</p>
+          <p style="margin: 2px 0;">Contact: +1 (773) 269-7505 • Maevausa@outlook.com</p>
+        </div>
+      </div>
+    `;
+
+    // Method 1: Free Gmail / SMTP Transport
+    if (smtpUser && smtpPass) {
       try {
-        const emailHtml = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #FAF7F2; border: 1px solid #E8DFD5; padding: 24px; color: #2B1E1E;">
-            <div style="background-color: #4E141B; padding: 18px; text-align: center;">
-              <h1 style="color: #FAF7F2; margin: 0; font-size: 20px; font-weight: normal; letter-spacing: 2px;">HAIR BY MAEVA</h1>
-              <p style="color: #C5A059; margin: 4px 0 0 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;">New Client Appointment Request</p>
-            </div>
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: smtpUser,
+            pass: smtpPass,
+          },
+        });
 
-            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #E8DFD5; margin-top: 16px;">
-              <h2 style="color: #4E141B; margin: 0 0 12px 0; font-size: 17px;">Appointment Summary</h2>
-              <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
-                <tr>
-                  <td style="padding: 6px 0; color: #6B5B56; width: 40%;">Client Name:</td>
-                  <td style="padding: 6px 0; font-weight: bold; color: #4E141B;">${booking.clientName}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 6px 0; color: #6B5B56;">Client Phone:</td>
-                  <td style="padding: 6px 0; font-weight: bold;"><a href="tel:${booking.clientPhone}" style="color: #4E141B; text-decoration: underline;">${booking.clientPhone}</a></td>
-                </tr>
-                ${booking.clientLocation ? `
-                <tr>
-                  <td style="padding: 6px 0; color: #6B5B56;">Client Location:</td>
-                  <td style="padding: 6px 0; font-weight: bold; color: #4E141B;">${booking.clientLocation}</td>
-                </tr>
-                ` : ""}
-                ${booking.clientEmail ? `
-                <tr>
-                  <td style="padding: 6px 0; color: #6B5B56;">Client Email:</td>
-                  <td style="padding: 6px 0;"><a href="mailto:${booking.clientEmail}" style="color: #4E141B;">${booking.clientEmail}</a></td>
-                </tr>
-                ` : ""}
-                <tr>
-                  <td style="padding: 6px 0; color: #6B5B56;">Hairstyle:</td>
-                  <td style="padding: 6px 0; font-weight: bold; color: #4E141B;">${booking.serviceName}</td>
-                </tr>
-                ${booking.selectedLength ? `
-                <tr>
-                  <td style="padding: 6px 0; color: #6B5B56;">Length Tier:</td>
-                  <td style="padding: 6px 0;">${booking.selectedLength}</td>
-                </tr>
-                ` : ""}
-                <tr>
-                  <td style="padding: 6px 0; color: #6B5B56;">Date:</td>
-                  <td style="padding: 6px 0; font-weight: bold; color: #4E141B;">${booking.appointmentDate}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 6px 0; color: #6B5B56;">Time Slot:</td>
-                  <td style="padding: 6px 0; font-weight: bold; color: #4E141B;">${booking.appointmentTime}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 6px 0; color: #6B5B56;">Total Estimated Price:</td>
-                  <td style="padding: 6px 0; font-weight: bold;">$${booking.totalPrice}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 6px 0; color: #6B5B56;">Deposit Required:</td>
-                  <td style="padding: 6px 0; font-weight: bold; color: #C5A059; font-size: 15px;">$${booking.depositAmount}</td>
-                </tr>
-                ${booking.notes ? `
-                <tr>
-                  <td style="padding: 6px 0; color: #6B5B56;">Notes / Hair Specs:</td>
-                  <td style="padding: 6px 0; font-style: italic;">${booking.notes}</td>
-                </tr>
-                ` : ""}
-              </table>
-            </div>
+        await transporter.sendMail({
+          from: `"Hair By Maeva Bookings" <${smtpUser}>`,
+          to: salonNotificationEmail,
+          replyTo: booking.clientEmail ? booking.clientEmail.trim() : salonNotificationEmail,
+          subject: `New Booking Request: ${booking.serviceName} - ${booking.clientName} (${booking.appointmentDate})`,
+          html: emailHtml,
+        });
 
-            <div style="background-color: #FAF7F2; border: 1px solid #C5A059; padding: 16px; margin-top: 16px;">
-              <h3 style="color: #4E141B; margin: 0 0 8px 0; font-size: 14px;">Deposit & Payment Verification</h3>
-              <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
-                <strong>Unique Booking Reference:</strong> <span style="font-family: monospace; font-size: 14px; color: #4E141B;">${booking.paymentReference || "N/A"}</span>
-              </p>
-              ${booking.paymentMethod ? `
-              <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
-                <strong>Payment Channel Selected:</strong> <span style="font-weight: bold; color: #4E141B; background: #FAF7F2; border: 1px solid #C5A059; padding: 2px 6px;">${booking.paymentMethod}</span>
-              </p>
-              ` : ""}
-              ${booking.zelleSenderName ? `
-              <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
-                <strong>Sender Account Name:</strong> <span style="font-weight: bold; color: #4E141B;">${booking.zelleSenderName}</span>
-              </p>
-              ` : `
-              <p style="font-size: 11px; margin: 4px 0; color: #6B5B56; font-style: italic;">
-                Client has not yet submitted their payment account name.
-              </p>
-              `}
-              ${booking.zelleMemo ? `
-              <p style="font-size: 12px; margin: 4px 0; color: #2B1E1E;">
-                <strong>Client Memo / Note:</strong> ${booking.zelleMemo}
-              </p>
-              ` : ""}
-            </div>
+        emailSent = true;
+      } catch (smtpErr) {
+        console.warn("Gmail SMTP booking notification failed:", smtpErr);
+      }
+    }
 
-            <div style="margin-top: 20px; font-size: 11px; color: #6B5B56; text-align: center; border-top: 1px solid #E8DFD5; padding-top: 14px;">
-              <p style="margin: 2px 0;">Hair By Maeva • 1941 West Huron Street, Chicago, Illinois 60622</p>
-              <p style="margin: 2px 0;">Contact: +1 (773) 269-7505 • Maevausa@outlook.com</p>
-            </div>
-          </div>
-        `;
-
+    // Method 2: Resend API Fallback
+    if (!emailSent && resend) {
+      try {
         const sendRes = await resend.emails.send({
           from: "Hair By Maeva Bookings <onboarding@resend.dev>",
           to: salonNotificationEmail,
+          replyTo: booking.clientEmail ? booking.clientEmail.trim() : undefined,
           subject: `New Booking: ${booking.serviceName} - ${booking.clientName} (${booking.appointmentDate})`,
           html: emailHtml,
         });
 
         if (sendRes.data && !sendRes.error) {
           emailSent = true;
-        } else if (sendRes.error) {
-          console.warn("Resend email primary dispatch error:", sendRes.error);
-          // If in sandbox mode and recipient is restricted, deliver to registered Resend account owner
-          if (sendRes.error.message?.includes("own email address")) {
-            const match = sendRes.error.message.match(/\(([^)]+)\)/);
-            const fallbackTo = match ? match[1].toLowerCase().trim() : salonNotificationEmail;
-            const fallbackRes = await resend.emails.send({
-              from: "Hair By Maeva Bookings <onboarding@resend.dev>",
-              to: fallbackTo,
-              subject: `[Salon Alert] New Booking: ${booking.serviceName} - ${booking.clientName} (${booking.appointmentDate})`,
-              html: emailHtml,
-            });
-            if (fallbackRes.data && !fallbackRes.error) {
-              emailSent = true;
-            }
-          }
         }
-      } catch (emailErr) {
-        console.warn("Resend email dispatch error:", emailErr);
+      } catch (resendErr) {
+        console.warn("Resend email fallback error:", resendErr);
       }
     }
 
