@@ -13,7 +13,7 @@ const VALID_KEYS = [
 export async function POST(req: Request) {
   try {
     const adminKey = req.headers.get("x-admin-key") || "";
-    const expectedKey = process.env.ADMIN_PASSKEY || "admin123";
+    const expectedKey = process.env.ADMIN_PASSKEY || "Maeva123#";
     if (!adminKey || adminKey !== expectedKey) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

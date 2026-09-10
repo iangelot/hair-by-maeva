@@ -180,11 +180,10 @@ export default function AdminPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanKey = passkey.trim();
-    if (cleanKey === "admin123" || cleanKey.toLowerCase() === "admin") {
+    if (cleanKey === "Maeva123#") {
       setIsAuthenticated(true);
       setAuthError(false);
-      // Normalize to the canonical passkey expected by /api/content
-      const syncKey = cleanKey.toLowerCase() === "admin" ? "admin123" : cleanKey;
+      const syncKey = cleanKey;
       try {
         sessionStorage.setItem("hbm_admin_key", syncKey);
         localStorage.setItem(
