@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { supabase, supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 
 const salonNotificationEmail = (process.env.SALON_NOTIFICATION_EMAIL || "maevausa@outlook.com").toLowerCase().trim();
 
@@ -20,10 +20,11 @@ export async function POST(req: Request) {
     let savedToDb = false;
 
     // 1. Save to Supabase Cloud Database
-    if (isSupabaseConfigured && supabase) {
+    const dbClient = supabaseAdmin || supabase;
+    if (isSupabaseConfigured && dbClient) {
       try {
         // Try dedicated subscribers table
-        const { error } = await supabase
+        const { error } = await dbClient
           .from("subscribers")
           .upsert([{ email: cleanEmail, created_at: new Date().toISOString() }], { onConflict: "email" });
 
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
           savedToDb = true;
         } else {
           // Fallback to site_content key if table is not yet migrated
-          const { data: contentRow } = await supabase
+          const { data: contentRow } = await dbClient
             .from("site_content")
             .select("value")
             .eq("key", "newsletter_subscribers")
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
           const existing: string[] = Array.isArray(contentRow?.value) ? contentRow.value : [];
           if (!existing.includes(cleanEmail)) {
             const updated = [cleanEmail, ...existing];
-            await supabase
+            await dbClient
               .from("site_content")
               .upsert([{ key: "newsletter_subscribers", value: updated }]);
             savedToDb = true;
@@ -147,10 +148,11 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     let subscribers: string[] = [];
+    const dbClient = supabaseAdmin || supabase;
 
-    if (isSupabaseConfigured && supabase) {
+    if (isSupabaseConfigured && dbClient) {
       // Check subscribers table
-      const { data, error } = await supabase
+      const { data, error } = await dbClient
         .from("subscribers")
         .select("email, created_at")
         .order("created_at", { ascending: false });
@@ -159,7 +161,7 @@ export async function GET() {
         subscribers = data.map((d: any) => d.email);
       } else {
         // Check site_content key
-        const { data: contentRow } = await supabase
+        const { data: contentRow } = await dbClient
           .from("site_content")
           .select("value")
           .eq("key", "newsletter_subscribers")

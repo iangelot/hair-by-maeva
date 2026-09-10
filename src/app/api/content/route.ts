@@ -7,6 +7,7 @@ const VALID_KEYS = [
   "payment_settings",
   "salon_info",
   "policies",
+  "newsletter_subscribers",
 ];
 
 export async function POST(req: Request) {

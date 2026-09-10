@@ -13,3 +13,8 @@ export const isSupabaseConfigured = Boolean(
 export const supabase: SupabaseClient | null = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
+
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+export const supabaseAdmin: SupabaseClient | null = isSupabaseConfigured
+  ? createClient(supabaseUrl, serviceRoleKey || supabaseAnonKey)
+  : null;
