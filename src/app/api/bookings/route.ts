@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 const resendApiKey = process.env.RESEND_API_KEY || "";
-const salonNotificationEmail = process.env.SALON_NOTIFICATION_EMAIL || "Maevausa@outlook.com";
+const salonNotificationEmail = (process.env.SALON_NOTIFICATION_EMAIL || "maevausa@outlook.com").toLowerCase().trim();
 
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
@@ -161,7 +161,7 @@ export async function POST(req: Request) {
           // If in sandbox mode and recipient is restricted, deliver to registered Resend account owner
           if (sendRes.error.message?.includes("own email address")) {
             const match = sendRes.error.message.match(/\(([^)]+)\)/);
-            const fallbackTo = match ? match[1] : "idrissangelot99@gmail.com";
+            const fallbackTo = match ? match[1].toLowerCase().trim() : salonNotificationEmail;
             const fallbackRes = await resend.emails.send({
               from: "Hair By Maeva Bookings <onboarding@resend.dev>",
               to: fallbackTo,
