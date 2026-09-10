@@ -10,6 +10,7 @@ export interface BookingRecord {
   clientName: string;
   clientPhone: string;
   clientEmail: string;
+  clientLocation?: string;
   serviceId: string;
   serviceName: string;
   selectedLength?: string;
@@ -195,25 +196,37 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           .order("created_at", { ascending: false })
           .then(({ data, error }) => {
             if (!error && data && data.length > 0) {
-              const mapped: BookingRecord[] = data.map((d: any) => ({
-                id: d.id,
-                clientName: d.client_name,
-                clientPhone: d.client_phone,
-                clientEmail: d.client_email || "",
-                serviceId: d.service_id || "",
-                serviceName: d.service_name,
-                selectedLength: d.selected_length,
-                totalPrice: Number(d.total_amount ?? d.total_price ?? 0),
-                depositAmount: Number(d.deposit_amount ?? 20),
-                appointmentDate: d.appointment_date,
-                appointmentTime: d.appointment_time,
-                notes: d.notes,
-                status: d.status,
-                createdAt: d.created_at,
-                paymentReference: d.reference_code || d.payment_reference,
-                zelleSenderName: d.zelle_sender_name,
-                zelleMemo: d.zelle_memo,
-              }));
+              const mapped: BookingRecord[] = data.map((d: any) => {
+                let loc = d.client_location || "";
+                let n = d.notes || "";
+                if (!loc && n.includes("[Location: ")) {
+                  const m = n.match(/\[Location:\s*([^\]]+)\]/);
+                  if (m) {
+                    loc = m[1];
+                    n = n.replace(/\[Location:\s*([^\]]+)\]\s*/, "").trim();
+                  }
+                }
+                return {
+                  id: d.id,
+                  clientName: d.client_name,
+                  clientPhone: d.client_phone,
+                  clientEmail: d.client_email || "",
+                  clientLocation: loc,
+                  serviceId: d.service_id || "",
+                  serviceName: d.service_name,
+                  selectedLength: d.selected_length,
+                  totalPrice: Number(d.total_amount ?? d.total_price ?? 0),
+                  depositAmount: Number(d.deposit_amount ?? 20),
+                  appointmentDate: d.appointment_date,
+                  appointmentTime: d.appointment_time,
+                  notes: n,
+                  status: d.status,
+                  createdAt: d.created_at,
+                  paymentReference: d.reference_code || d.payment_reference,
+                  zelleSenderName: d.zelle_sender_name,
+                  zelleMemo: d.zelle_memo,
+                };
+              });
               setBookings(mapped);
               try {
                 localStorage.setItem("beas_admin_bookings", JSON.stringify(mapped));

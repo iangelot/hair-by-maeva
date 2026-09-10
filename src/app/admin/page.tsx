@@ -29,6 +29,7 @@ import {
   RotateCcw,
   Sparkles,
   Upload,
+  MapPin,
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -675,8 +676,8 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      {/* Contact Info */}
-                      <div className="flex items-center gap-4 text-xs text-neutral-700 pt-1">
+                      {/* Contact & Location Info */}
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-700 pt-1">
                         <a
                           href={`tel:${booking.clientPhone}`}
                           className="flex items-center gap-1 underline underline-offset-2 hover:text-black"
@@ -692,6 +693,12 @@ export default function AdminPage() {
                             <Mail className="w-3.5 h-3.5" />
                             {booking.clientEmail}
                           </a>
+                        )}
+                        {booking.clientLocation && (
+                          <span className="flex items-center gap-1 text-[#4E141B] font-medium bg-[#F5EFE6] px-2 py-0.5 border border-[#E8DFD5]">
+                            <MapPin className="w-3.5 h-3.5 text-[#C5A059]" />
+                            {booking.clientLocation}
+                          </span>
                         )}
                       </div>
 

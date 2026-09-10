@@ -36,7 +36,12 @@ export async function POST(req: Request) {
             status: booking.status || "pending",
             total_amount: booking.totalPrice,
             deposit_amount: booking.depositAmount,
-            notes: booking.notes || null,
+            notes: [
+              booking.clientLocation ? `[Location: ${booking.clientLocation}]` : null,
+              booking.notes,
+            ]
+              .filter(Boolean)
+              .join(" ") || null,
             zelle_sender_name: booking.zelleSenderName || null,
             zelle_memo: booking.paymentMethod
               ? `[Method: ${booking.paymentMethod}] ${booking.zelleMemo || ""}`.trim()
@@ -73,6 +78,12 @@ export async function POST(req: Request) {
                   <td style="padding: 6px 0; color: #6B5B56;">Client Phone:</td>
                   <td style="padding: 6px 0; font-weight: bold;"><a href="tel:${booking.clientPhone}" style="color: #4E141B; text-decoration: underline;">${booking.clientPhone}</a></td>
                 </tr>
+                ${booking.clientLocation ? `
+                <tr>
+                  <td style="padding: 6px 0; color: #6B5B56;">Client Location:</td>
+                  <td style="padding: 6px 0; font-weight: bold; color: #4E141B;">${booking.clientLocation}</td>
+                </tr>
+                ` : ""}
                 ${booking.clientEmail ? `
                 <tr>
                   <td style="padding: 6px 0; color: #6B5B56;">Client Email:</td>

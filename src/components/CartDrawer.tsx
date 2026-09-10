@@ -15,6 +15,7 @@ import {
   DollarSign,
   Copy,
   ShieldCheck,
+  MapPin,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useStore, BookingRecord } from "@/context/StoreContext";
@@ -42,6 +43,7 @@ export function CartDrawer() {
   const [selectedTime, setSelectedTime] = useState("");
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
+  const [clientLocation, setClientLocation] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [hairNotes, setHairNotes] = useState("");
 
@@ -77,8 +79,8 @@ export function CartDrawer() {
 
   const handleConfirmReservation = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedDate || !selectedTime || !clientName || !clientPhone) {
-      alert("Please enter your date, time slot, name, and phone number.");
+    if (!selectedDate || !selectedTime || !clientName || !clientPhone || !clientLocation.trim()) {
+      alert("Please enter your date, time slot, name, phone number, and location.");
       return;
     }
 
@@ -96,6 +98,7 @@ export function CartDrawer() {
       clientName,
       clientPhone,
       clientEmail,
+      clientLocation: clientLocation.trim(),
       serviceId: primaryItem?.serviceId || "cart-service",
       serviceName: servicesCombinedName,
       selectedLength: primaryItem?.selectedLength,
@@ -360,6 +363,23 @@ export function CartDrawer() {
                       onChange={(e) => setClientPhone(e.target.value)}
                       className="w-full p-2.5 border border-[#E8DFD5] text-xs focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-[#4E141B] mb-1">
+                      Your Location (City, State / ZIP Code) *
+                    </label>
+                    <div className="relative">
+                      <MapPin className="w-3.5 h-3.5 text-[#A69590] absolute left-2.5 top-3 pointer-events-none" />
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Chicago, IL 60622"
+                        value={clientLocation}
+                        onChange={(e) => setClientLocation(e.target.value)}
+                        className="w-full pl-8 pr-2.5 py-2.5 border border-[#E8DFD5] text-xs focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
+                      />
+                    </div>
                   </div>
 
                   <div>

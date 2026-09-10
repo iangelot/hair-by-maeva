@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Calendar, Clock, Check, ExternalLink, ShieldCheck, DollarSign, Copy, CheckCircle2 } from "lucide-react";
+import { X, Calendar, Clock, Check, ExternalLink, ShieldCheck, DollarSign, Copy, CheckCircle2, MapPin } from "lucide-react";
 import { useStore, BookingRecord } from "@/context/StoreContext";
 import { ServiceItem } from "@/data/services";
 import { downloadIcsCalendar, getGoogleCalendarUrl } from "@/utils/calendar";
@@ -32,6 +32,7 @@ export function BookingModal({
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientEmail, setClientEmail] = useState("");
+  const [clientLocation, setClientLocation] = useState("");
   const [hairNotes, setHairNotes] = useState("");
   const [step, setStep] = useState<"details" | "confirmation">("details");
   const [createdBooking, setCreatedBooking] = useState<BookingRecord | null>(null);
@@ -75,8 +76,8 @@ export function BookingModal({
 
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedDate || !selectedTime || !clientName || !clientPhone) {
-      alert("Please complete all required fields.");
+    if (!selectedDate || !selectedTime || !clientName || !clientPhone || !clientLocation.trim()) {
+      alert("Please complete all required fields, including your location.");
       return;
     }
 
@@ -93,6 +94,7 @@ export function BookingModal({
       clientName,
       clientPhone,
       clientEmail,
+      clientLocation: clientLocation.trim(),
       serviceId: currentService.id,
       serviceName: currentService.name,
       selectedLength,
@@ -303,6 +305,17 @@ export function BookingModal({
                     value={clientPhone}
                     onChange={(e) => setClientPhone(e.target.value)}
                     className="w-full p-3 border border-[#E8DFD5] text-sm focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
+                  />
+                </div>
+                <div className="relative">
+                  <MapPin className="w-4 h-4 text-[#A69590] absolute left-3 top-3.5 pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="Your Location (City, State or ZIP Code) *"
+                    required
+                    value={clientLocation}
+                    onChange={(e) => setClientLocation(e.target.value)}
+                    className="w-full pl-9 pr-3 py-3 border border-[#E8DFD5] text-sm focus:outline-none focus:border-[#4E141B] rounded-none bg-white text-[#2B1E1E]"
                   />
                 </div>
                 <input

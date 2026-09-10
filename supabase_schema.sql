@@ -10,6 +10,7 @@ create table if not exists public.bookings (
   client_name text not null,
   client_phone text not null,
   client_email text,
+  client_location text,
   service_id text,
   service_name text not null,
   selected_length text,
@@ -24,6 +25,9 @@ create table if not exists public.bookings (
   zelle_memo text,
   created_at timestamp with time zone default now()
 );
+
+-- Ensure client_location exists if table was created previously
+alter table public.bookings add column if not exists client_location text;
 
 alter table public.bookings enable row level security;
 
